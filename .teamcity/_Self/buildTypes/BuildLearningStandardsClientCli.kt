@@ -12,6 +12,8 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.dotnetPack
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.dotnetPublish
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.dotnetTest
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.exec
+import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.VcsTrigger
+import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.vcs
 
 object BuildLearningStandardsClientCli : BuildType ({
     name = "Build Ed-Fi Learning Standards CLI"
@@ -32,6 +34,17 @@ object BuildLearningStandardsClientCli : BuildType ({
         param("env.Git_Branch", "%teamcity.build.branch%")
         param("PackageVersion", "%learningStandardsClient.version.major%.%learningStandardsClient.version.minor%.%build.counter%")
         param("buildConfiguration", "Release")
+    }
+
+    triggers {
+        vcs {
+            id ="vcsTrigger"
+            quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_CUSTOM
+            quietPeriod = 120
+            branchFilter = """
+                +:main
+            """.trimIndent()
+        }
     }
 
     steps {
