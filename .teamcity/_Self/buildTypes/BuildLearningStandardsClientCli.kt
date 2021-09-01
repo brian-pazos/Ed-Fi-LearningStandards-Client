@@ -42,7 +42,7 @@ object BuildLearningStandardsClientCli : BuildType ({
             quietPeriodMode = VcsTrigger.QuietPeriodMode.USE_CUSTOM
             quietPeriod = 120
             branchFilter = """
-                +:main
+                +:*
             """.trimIndent()
         }
     }
