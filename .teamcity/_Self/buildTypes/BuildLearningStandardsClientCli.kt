@@ -85,7 +85,7 @@ object BuildLearningStandardsClientCli : BuildType ({
         dotnetPublish {
             name = "Publish Winddows CLI"
             projects = "src/EdFi.Admin.LearningStandards.CLI/EdFi.Admin.LearningStandards.CLI.csproj"
-            framework = "netcoreapp2.1"
+            framework = "net6.0"
             configuration = "%buildConfiguration%"
             runtime = "win-x64"
             param("dotNetCoverage.dotCover.home.path", "%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%")
