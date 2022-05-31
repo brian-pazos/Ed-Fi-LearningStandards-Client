@@ -22,7 +22,7 @@ object BuildLearningStandardsClientCli : BuildType ({
     enablePersonalBuilds = false
     artifactRules = """
         src\EdFi.Admin.LearningStandards.Core\bin\%buildConfiguration%\*.nupkg =>
-        src\EdFi.Admin.LearningStandards.CLI\bin\%buildConfiguration%\netcoreapp2.1\win-x64\publish => EdFi.Admin.LearningStandards.CLI.win-x64.zip
+        src\EdFi.Admin.LearningStandards.CLI\bin\%buildConfiguration%\net6.0\win-x64\publish => EdFi.Admin.LearningStandards.CLI.win-x64.zip
     """.trimIndent()
     maxRunningBuilds = 1
 
