@@ -75,7 +75,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
             int totalRecords = inputRows.Count();
             var processingId = Guid.NewGuid();
 
-            IAsyncEnumerable<EdFiBulkJsonModel> asyncEnumerable = new AsyncEnumerable<EdFiBulkJsonModel>(
+            System.Collections.Async.IAsyncEnumerable<EdFiBulkJsonModel> asyncEnumerable = new AsyncEnumerable<EdFiBulkJsonModel>(
                 async yield =>
                 {
                     _processCount?.Invoke(this,
