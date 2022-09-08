@@ -66,13 +66,6 @@ object BuildLearningStandardsClientCli : BuildType ({
             projects = "src/EdFi.Admin.LearningStandards.Tests/EdFi.Admin.LearningStandards.Tests.csproj"
             configuration = "%buildConfiguration%"
             skipBuild = true
-            coverage = dotcover {
-                toolPath = "%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%"
-                assemblyFilters = """
-                    +:EdFi.Admin.LearningStandards.Core
-                    +:EdFi.Admin.LearningStandards.CLI
-                """.trimIndent()
-            }
         }
         dotnetPack {
             name = "Package LS Core Assembly"
