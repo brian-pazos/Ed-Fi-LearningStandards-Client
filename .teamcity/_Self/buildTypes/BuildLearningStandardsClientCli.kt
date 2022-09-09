@@ -14,6 +14,7 @@ import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.dotnetTest
 import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.exec
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.VcsTrigger
 import jetbrains.buildServer.configs.kotlin.v2019_2.triggers.vcs
+import jetbrains.buildServer.configs.kotlin.v2019_2.buildSteps.powerShell
 
 object BuildLearningStandardsClientCli : BuildType ({
     name = "Build Ed-Fi Learning Standards CLI"
@@ -61,16 +62,13 @@ object BuildLearningStandardsClientCli : BuildType ({
             args = "/p:Version=%PackageVersion%"
             param("dotNetCoverage.dotCover.home.path", "%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%")
         }
-        dotnetTest {
-            name = "Execute Tests"
-            projects = "src/EdFi.Admin.LearningStandards.Tests/EdFi.Admin.LearningStandards.Tests.csproj"
-            configuration = "%buildConfiguration%"
-            skipBuild = true
-            coverage = dotcover {
-                toolPath = "%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%"
-                assemblyFilters = """
-                    +:EdFi.Admin.LearningStandards.Core
-                    +:EdFi.Admin.LearningStandards.CLI
+        powerShell {
+            name = "Execute tests"
+            formatStderrAsError = true
+            executionMode = BuildStep.ExecutionMode.RUN_ON_SUCCESS
+            scriptMode = script {
+                content = """
+                    dotnet test 'src/EdFi.Admin.LearningStandards.Tests/EdFi.Admin.LearningStandards.Tests.csproj'
                 """.trimIndent()
             }
         }
