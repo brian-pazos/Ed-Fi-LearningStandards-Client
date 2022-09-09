@@ -21,7 +21,7 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 
         public static string GetAssemblyPath()
         {
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            string codeBase = Assembly.GetExecutingAssembly().Location;
             var uri = new UriBuilder(codeBase);
             string path = Uri.UnescapeDataString(uri.Path);
 

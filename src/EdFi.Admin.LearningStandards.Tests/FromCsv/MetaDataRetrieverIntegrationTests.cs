@@ -42,8 +42,7 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 
             _logger = new NUnitConsoleLogger<MetaDataRetriever>();
             string expectedLsContent = TestHelpers.ReadTestFile($"{folderPath}\\Expected-LS-Metadata.json");
-         
-            var swaggerDocumentRetriever = new SwaggerDocumentRetriever(new NUnitConsoleLogger<SwaggerDocumentRetriever>());
+            var swaggerDocumentRetriever = new SwaggerDocumentRetriever(new NUnitConsoleLogger<SwaggerDocumentRetriever>(), new MockHttpClientFactory() );
             var metaDataRetriever = new MetaDataRetriever(_logger, swaggerDocumentRetriever);
             string cleanedExpectedContent = Regex.Replace(expectedLsContent, @"\s+", "");
 
@@ -93,8 +92,7 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
             IfFileExistsDelete(fileName);
 
             _logger = new NUnitConsoleLogger<MetaDataRetriever>();
-
-            var swaggerDocumentRetriever = new SwaggerDocumentRetriever(new NUnitConsoleLogger<SwaggerDocumentRetriever>());
+            var swaggerDocumentRetriever = new SwaggerDocumentRetriever(new NUnitConsoleLogger<SwaggerDocumentRetriever>(), new MockHttpClientFactory());
             var metaDataRetriever = new MetaDataRetriever(_logger, swaggerDocumentRetriever);
             var dataMappingProcessor = new DataMappingProcess();
             dataMappingProcessor.DataMappingsFilePath = Path.Combine(folderPath, "Mappings.json");
