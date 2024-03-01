@@ -91,7 +91,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                             string errorContent = await response.ReadContentAsStringOrEmptyAsync().ConfigureAwait(false);
                             var ex = new LearningStandardsHttpRequestException($"An error occurred while trying to connect with {httpRequestUri}", response.StatusCode, errorContent, ServiceNames.AB);
                             _logger.LogError(ex);
-                            _logger.LogDebug($"[{(int)response.StatusCode} {response.StatusCode}]: {errorContent}");
+                            _logger.LogInformation($"[{(int)response.StatusCode} {response.StatusCode}]: {errorContent}");
                             throw ex;
                         }
 
@@ -158,7 +158,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
         private void ReportDefaultCount(Guid processingId, Uri requestUri)
         {
-            _logger.LogDebug($"No record count was returned from the proxy for Uri: {requestUri?.AbsoluteUri}. Using Defaults.");
+            _logger.LogInformation($"No record count was returned from the proxy for Uri: {requestUri?.AbsoluteUri}. Using Defaults.");
             _processCount?.Invoke(this, new AsyncEnumerableOperationStatus(processingId, _learningStandardsProviderConfiguration.DefaultReportedRecordCount));
         }
 
@@ -235,7 +235,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                     }
 
                     var ex = new LearningStandardsHttpRequestException(errorMessage, httpResponse.StatusCode, httpResponseContent, ServiceNames.AB);
-                    _logger.LogDebug($"[{(int)httpResponse.StatusCode} {httpResponse.StatusCode}]: {httpResponseContent}");
+                    _logger.LogInformation($"[{(int)httpResponse.StatusCode} {httpResponse.StatusCode}]: {httpResponseContent}");
                     _logger.LogError(ex.Message);
 
                     throw ex;
@@ -245,7 +245,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
                 if (result == null)
                 {
-                    _logger.LogDebug($"[{(int)httpResponse.StatusCode} {httpResponse.StatusCode}]: No response sent from url: {request.RequestUri.ToString()}");
+                    _logger.LogInformation($"[{(int)httpResponse.StatusCode} {httpResponse.StatusCode}]: No response sent from url: {request.RequestUri.ToString()}");
                     throw new LearningStandardsHttpRequestException(
                         "No response was sent from the API when checking for change events.",
                         httpResponse.StatusCode,
@@ -306,7 +306,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                     }
 
                     var ex = new LearningStandardsHttpRequestException(errorMessage, httpResponse.StatusCode, httpResponseContent, ServiceNames.AB);
-                    _logger.LogDebug($"[{(int)httpResponse.StatusCode} {httpResponse.StatusCode}]: {httpResponseContent}");
+                    _logger.LogInformation($"[{(int)httpResponse.StatusCode} {httpResponse.StatusCode}]: {httpResponseContent}");
                     _logger.LogError(ex.Message);
 
                     throw ex;
