@@ -31,7 +31,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
     {
         private const string AbClientId = "abtestsmall";
         private const string AbSecret = "<Your secret here>";
-        private const string ProxyUrl = "https://abproxy.dataconnectdev.certicaconnect.com/api/";
+        private const string ProxyUrl = "https://abproxy.datahub.inscloudgate.net/api/";
 
         [TestCase(EdFiOdsApiCompatibilityVersion.v2)]
         [TestCase(EdFiOdsApiCompatibilityVersion.v3)]

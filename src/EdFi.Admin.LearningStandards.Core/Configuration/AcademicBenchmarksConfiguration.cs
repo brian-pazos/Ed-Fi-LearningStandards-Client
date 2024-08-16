@@ -9,7 +9,7 @@ namespace EdFi.Admin.LearningStandards.Core.Configuration
 {
     public class AcademicBenchmarksOptions : ILearningStandardsProviderConfiguration
     {
-        public string Url { get; set; } = "https://abproxy.dataconnect.certicaconnect.com/api/";
+        public string Url { get; set; } = "https://abproxy.datahub.instructure.com/api/";
 
         public int Retries { get; set; } = 3;
 
