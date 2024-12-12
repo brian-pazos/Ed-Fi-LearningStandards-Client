@@ -1,14 +1,8 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Collections.Async;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.CLI;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Auth;
@@ -21,6 +15,12 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System;
+using System.Collections.Async;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests
 {
@@ -61,7 +61,7 @@ namespace EdFi.Admin.LearningStandards.Tests
         {
             //Arrange
             var httpHandler = new MockJsonHttpMessageHandler()
-                .AddRouteResponse("validate/authentication", GetDefaultProxyResponse())
+                .AddRouteResponse("standards", ABConnectApiFileBasedTestCases.ValidApiResponse_LearningStandards())
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
             var app = new LearningStandardsCLIApplication(services =>
             {
@@ -106,12 +106,10 @@ namespace EdFi.Admin.LearningStandards.Tests
             var consoleStringListWriter = new ConsoleStringListWriter();
             Console.SetOut(consoleStringListWriter);
 
-            var apiActual = new AcademicBenchmarksChangesAvailableModel { EventChangesAvailable = true, MaxSequenceId = 1234 };
-
             var httpHandler = new MockJsonHttpMessageHandler()
-                .AddRouteResponse("validate/authentication", GetDefaultProxyResponse())
+                .AddRouteResponse("standards", JToken.Parse(ABConnectApiFileBasedTestCases.ValidApiResponse_LearningStandards()))
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
-                .AddRouteResponse("changes/available", JObject.FromObject(apiActual));
+                .AddRouteResponse("events", JToken.Parse(ABConnectApiFileBasedTestCases.ValidApiResponse_EventsSingleResponse()));
             var app = new LearningStandardsCLIApplication(services =>
             {
                 services.ConfigureAll<HttpClientFactoryOptions>(options =>
@@ -281,7 +279,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             public AsyncEnumerableOperation<EdFiBulkJsonModel> GetLearningStandardsDescriptors(
                 EdFiOdsApiCompatibilityVersion version,
                 IChangeSequence changeSequence,
-                IAuthTokenManager learningStandardsProviderAuthTokenManager,
+                IAuthApiManager learningStandardsProviderAuthTokenManager,
                 CancellationToken cancellationToken)
             {
                 return GetFakeResult();
@@ -290,7 +288,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             public AsyncEnumerableOperation<EdFiBulkJsonModel> GetLearningStandards(
                 EdFiOdsApiCompatibilityVersion version,
                 IChangeSequence syncStartSequence,
-                IAuthTokenManager learningStandardsProviderAuthTokenManager,
+                IAuthApiManager learningStandardsProviderAuthTokenManager,
                 CancellationToken cancellationToken = default)
             {
                 return GetFakeResult();
@@ -298,7 +296,7 @@ namespace EdFi.Admin.LearningStandards.Tests
 
             public Task<IChangesAvailableResponse> GetChangesAsync(
                 IChangeSequence changeSequence,
-                IAuthTokenManager learningStandardsProviderAuthTokenManager,
+                IAuthApiManager learningStandardsProviderAuthTokenManager,
                 CancellationToken cancellationToken)
             {
                 throw new NotImplementedException();
@@ -325,6 +323,16 @@ namespace EdFi.Admin.LearningStandards.Tests
                     _logger.LogError(ex);
                     throw new Exception("An unexpected error occurred while streaming Learning Standards. Please try again. If this problem persists, please contact support.", ex);
                 }
+            }
+
+            public AsyncEnumerableOperation<LearningStandardsSegmentModel> GetChangedSegments(EdFiOdsApiCompatibilityVersion version, IChangeSequence syncStartSequence, IAuthApiManager learningStandardsProviderAuthTokenManager, CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
+            }
+
+            public AsyncEnumerableOperation<EdFiBulkJsonModel> GetSegmentLearningStandards(EdFiOdsApiCompatibilityVersion version, LearningStandardsSegmentModel section, IAuthApiManager learningStandardsProviderAuthTokenManager, CancellationToken cancellationToken = default)
+            {
+                throw new NotImplementedException();
             }
         }
     }

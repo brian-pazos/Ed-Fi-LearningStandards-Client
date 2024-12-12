@@ -28,6 +28,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="TestFiles\ABConnectApiResponses\events-single-response.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\ABConnectApiResponses\events-response.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\ABConnectApiResponses\learning-standards-response.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\ABConnectApiResponses\subjects-gradeLevels-response.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="TestFiles\Sample-metadata\Expected-LS-Metadata.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

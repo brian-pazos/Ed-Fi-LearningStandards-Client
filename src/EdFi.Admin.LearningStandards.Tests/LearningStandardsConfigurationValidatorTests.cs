@@ -1,13 +1,8 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using EdFi.Admin.LearningStandards.Core.Installers;
@@ -20,6 +15,11 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests
 {
@@ -55,7 +55,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(
                 _defaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
             var httpHandler = new MockJsonHttpMessageHandler()
-                .AddRouteResponse("validate/authentication", GetDefaultProxyResponse())
+                .AddRouteResponse("standards", ABConnectApiFileBasedTestCases.ValidApiResponse_LearningStandards())
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
             var clientConfiguration = new EdFiOdsApiClientConfiguration(0);
             var pluginConnector = GetConfiguredTestConnector(httpHandler, clientConfiguration);
@@ -279,7 +279,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             //Arrange
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
             var httpHandler = new MockJsonHttpMessageHandler()
-                .AddRouteResponse("validate/authentication", GetDefaultProxyResponse());
+                .AddRouteResponse("standards", ABConnectApiFileBasedTestCases.ValidApiResponse_LearningStandards());
             var clientConfiguration = new EdFiOdsApiClientConfiguration(0);
             var pluginConnector = GetConfiguredTestConnector(httpHandler, clientConfiguration);
             var validator = pluginConnector.LearningStandardsConfigurationValidator;

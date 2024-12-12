@@ -1,24 +1,24 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 
 namespace EdFi.Admin.LearningStandards.Core.Auth
 {
-    public class AcademicBenchmarksAuthTokenManagerFactory : ILearningStandardsProviderAuthTokenManagerFactory
+    public class AcademicBenchmarksAuthApiManagerFactory : ILearningStandardsProviderAuthApiManagerFactory
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<AcademicBenchmarksAuthTokenManager> _logger;
+        private readonly ILogger<AcademicBenchmarksAuthApiManager> _logger;
 
-        public AcademicBenchmarksAuthTokenManagerFactory(
+        public AcademicBenchmarksAuthApiManagerFactory(
             IServiceProvider serviceProvider,
-            ILogger<AcademicBenchmarksAuthTokenManager> logger)
+            ILogger<AcademicBenchmarksAuthApiManager> logger)
         {
             Check.NotNull(logger, nameof(logger));
 
@@ -26,12 +26,12 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
             _logger = logger;
         }
 
-        public IAuthTokenManager CreateLearningStandardsProviderAuthTokenManager(
+        public IAuthApiManager CreateLearningStandardsProviderAuthApiManager(
             IAuthenticationConfiguration authenticationConfiguration)
         {
             Check.NotNull(authenticationConfiguration, nameof(authenticationConfiguration));
 
-            return new AcademicBenchmarksAuthTokenManager(
+            return new AcademicBenchmarksAuthApiManager(
                 _serviceProvider.GetRequiredService<IOptionsSnapshot<AcademicBenchmarksOptions>>(),
                 authenticationConfiguration,
                 _logger);

@@ -1,0 +1,345 @@
+{
+    "links": {
+        "last": "https://api.abconnect.instructure.com/rest/v4.1/standards?fields%5Bstandards%5D=status,education_levels.grades,disciplines.subjects,document.descr,document.adopt_year,document.publication.authorities.descr,section.descr,statement.combined_descr&filter%5Bstandards%5D=document.guid+eq+48DF5EDA-C051-11EA-8F8E-34E45EDEA4DF+and+section.guid+eq+881140D1-C052-11EA-BB5B-0E20088BB29A&offset=30",
+        "next": "https://api.abconnect.instructure.com/rest/v4.1/standards?fields%5Bstandards%5D=status,education_levels.grades,disciplines.subjects,document.descr,document.adopt_year,document.publication.authorities.descr,section.descr,statement.combined_descr&filter%5Bstandards%5D=document.guid+eq+48DF5EDA-C051-11EA-8F8E-34E45EDEA4DF+and+section.guid+eq+881140D1-C052-11EA-BB5B-0E20088BB29A&offset=10",
+        "self": "https://api.abconnect.instructure.com/rest/v4.1/standards?fields%5Bstandards%5D=status,education_levels.grades,disciplines.subjects,document.descr,document.adopt_year,document.publication.authorities.descr,section.descr,statement.combined_descr&filter%5Bstandards%5D=document.guid+eq+48DF5EDA-C051-11EA-8F8E-34E45EDEA4DF+and+section.guid+eq+881140D1-C052-11EA-BB5B-0E20088BB29A"
+    },
+    "data": [
+        {
+            "id": "053A1071-2576-48B0-BADE-A9C594C2F99D",
+            "type": "standards",
+            "attributes": {
+                "section": { "descr": "3-Year-Olds" },
+                "document": {
+                    "descr": "English Language Arts",
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "adopt_year": "2020"
+                },
+                "education_levels": {
+                    "grades": [
+                        {
+                            "descr": "Pre-K",
+                            "seq": 10,
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK"
+                        }
+                    ]
+                },
+                "status": "active",
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "descr": "Language Arts",
+                            "code": "LANG",
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22"
+                        }
+                    ]
+                },
+                "statement": { "combined_descr": "With prompting and support, begin to experiment with speaking and writing while representing ideas visually (e.g., scribbles, stamps, stickers, or gluing pictures on paper)." }
+            }
+        },
+        {
+            "attributes": {
+                "statement": { "combined_descr": "Begins in kindergarten." },
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "code": "LANG",
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                },
+                "document": {
+                    "adopt_year": "2020",
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "descr": "English Language Arts"
+                },
+                "section": { "descr": "3-Year-Olds" },
+                "education_levels": {
+                    "grades": [
+                        {
+                            "seq": 10,
+                            "descr": "Pre-K",
+                            "code": "PK",
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22"
+                        }
+                    ]
+                },
+                "status": "active"
+            },
+            "type": "standards",
+            "id": "073AEB95-5140-4AFE-A4AD-39F3B05BCB48"
+        },
+        {
+            "id": "09CDB415-AE6B-44C8-9F78-9CB7DA4EE69F",
+            "attributes": {
+                "section": { "descr": "3-Year-Olds" },
+                "status": "active",
+                "education_levels": {
+                    "grades": [
+                        {
+                            "code": "PK",
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "seq": 10,
+                            "descr": "Pre-K"
+                        }
+                    ]
+                },
+                "document": {
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "descr": "English Language Arts",
+                    "adopt_year": "2020"
+                },
+                "statement": { "combined_descr": "Participate in shared writing projects." },
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "code": "LANG",
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                }
+            },
+            "type": "standards"
+        },
+        {
+            "type": "standards",
+            "attributes": {
+                "statement": { "combined_descr": "With prompting and support, begin to identify seven or more consonant names and sounds using one-to-one letter-sound correspondence (alphabetic principle)." },
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "code": "LANG",
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                },
+                "document": {
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "descr": "English Language Arts",
+                    "adopt_year": "2020"
+                },
+                "section": { "descr": "3-Year-Olds" },
+                "status": "active",
+                "education_levels": {
+                    "grades": [
+                        {
+                            "seq": 10,
+                            "descr": "Pre-K",
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK"
+                        }
+                    ]
+                }
+            },
+            "id": "0ECAEF60-79CA-47BD-9F70-3A4A634E03B0"
+        },
+        {
+            "id": "16E94925-2D33-4865-8CB6-B596AF201A6C",
+            "attributes": {
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "code": "LANG",
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                },
+                "statement": { "combined_descr": "Students will learn to write for a variety of tasks, purposes, and audiences using appropriate grammar/conventions, syntax, and style." },
+                "document": {
+                    "descr": "English Language Arts",
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "adopt_year": "2020"
+                },
+                "status": "active",
+                "education_levels": {
+                    "grades": [
+                        {
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK",
+                            "seq": 10,
+                            "descr": "Pre-K"
+                        }
+                    ]
+                },
+                "section": { "descr": "3-Year-Olds" }
+            },
+            "type": "standards"
+        },
+        {
+            "type": "standards",
+            "attributes": {
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "LANG",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                },
+                "statement": { "combined_descr": "With prompting and support, begin to retell simple texts. (RL & RI)" },
+                "status": "active",
+                "education_levels": {
+                    "grades": [
+                        {
+                            "seq": 10,
+                            "descr": "Pre-K",
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK"
+                        }
+                    ]
+                },
+                "document": {
+                    "adopt_year": "2020",
+                    "descr": "English Language Arts",
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] }
+                },
+                "section": { "descr": "3-Year-Olds" }
+            },
+            "id": "1A6A8A6E-A87C-4D48-81E8-58AE1353BA68"
+        },
+        {
+            "id": "1F93B979-1791-4FFB-B24F-1ED6AE50BBBC",
+            "attributes": {
+                "section": { "descr": "3-Year-Olds" },
+                "document": {
+                    "adopt_year": "2020",
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "descr": "English Language Arts"
+                },
+                "status": "active",
+                "education_levels": {
+                    "grades": [
+                        {
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK",
+                            "seq": 10,
+                            "descr": "Pre-K"
+                        }
+                    ]
+                },
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "code": "LANG",
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                },
+                "statement": { "combined_descr": "Begins in grade 2." }
+            },
+            "type": "standards"
+        },
+        {
+            "id": "269E326D-55B1-4DBB-9375-721C33BAAEC0",
+            "type": "standards",
+            "attributes": {
+                "section": { "descr": "3-Year-Olds" },
+                "document": {
+                    "descr": "English Language Arts",
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "adopt_year": "2020"
+                },
+                "status": "active",
+                "education_levels": {
+                    "grades": [
+                        {
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK",
+                            "seq": 10,
+                            "descr": "Pre-K"
+                        }
+                    ]
+                },
+                "statement": { "combined_descr": "With prompting and support, explore syllables in simple words." },
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "LANG",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "id": "29C3DEC0-9962-427F-9220-B35187A169EE",
+            "attributes": {
+                "statement": { "combined_descr": "Follow one-step directions." },
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "LANG",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                },
+                "education_levels": {
+                    "grades": [
+                        {
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK",
+                            "seq": 10,
+                            "descr": "Pre-K"
+                        }
+                    ]
+                },
+                "status": "active",
+                "document": {
+                    "descr": "English Language Arts",
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "adopt_year": "2020"
+                },
+                "section": { "descr": "3-Year-Olds" }
+            },
+            "type": "standards"
+        },
+        {
+            "id": "2E61B14A-D04D-44C8-AD17-40404CBF719E",
+            "type": "standards",
+            "attributes": {
+                "section": { "descr": "3-Year-Olds" },
+                "document": {
+                    "publication": { "authorities": [ { "descr": "Utah State Board of Education" } ] },
+                    "descr": "English Language Arts",
+                    "adopt_year": "2020"
+                },
+                "education_levels": {
+                    "grades": [
+                        {
+                            "descr": "Pre-K",
+                            "seq": 10,
+                            "code": "PK",
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22"
+                        }
+                    ]
+                },
+                "status": "active",
+                "disciplines": {
+                    "subjects": [
+                        {
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "LANG",
+                            "descr": "Language Arts"
+                        }
+                    ]
+                },
+                "statement": { "combined_descr": "Reading (P3.R)" }
+            }
+        }
+    ],
+    "meta": {
+        "offset": 0,
+        "took": 169,
+        "limit": 10,
+        "count": 36
+    }
+}

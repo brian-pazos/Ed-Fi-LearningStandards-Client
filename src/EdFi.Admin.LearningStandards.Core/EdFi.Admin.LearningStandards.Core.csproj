@@ -19,4 +19,8 @@
     <Compile Include="..\Shared\*.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Services\AcademicBenchmarksLearningStandardRetriever.cs" />
+  </ItemGroup>
+
 </Project>

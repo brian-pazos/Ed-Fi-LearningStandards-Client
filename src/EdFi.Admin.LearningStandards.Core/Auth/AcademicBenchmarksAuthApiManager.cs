@@ -1,37 +1,41 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace EdFi.Admin.LearningStandards.Core.Auth
 {
-    public class AcademicBenchmarksAuthTokenManager : IAuthTokenManager
+    public class AcademicBenchmarksAuthApiManager : IAuthApiManager
     {
         private readonly IAuthenticationConfiguration _authenticationConfiguration;
 
         private readonly ILearningStandardsProviderConfiguration _learningStandardsProviderConfiguration;
 
-        private readonly ILogger<AcademicBenchmarksAuthTokenManager> _logger;
+        private readonly ILogger<AcademicBenchmarksAuthApiManager> _logger;
 
         private const int DefaultTimeWindow = 300;
 
         private string _token;
 
-        private long _unixUtcExpiration;
+        private DateTime _utcExpiration;
 
-        public AcademicBenchmarksAuthTokenManager(
+        private string _signature;
+
+        public AcademicBenchmarksAuthApiManager(
             IOptionsSnapshot<AcademicBenchmarksOptions> academicBenchmarksOptions,
             IAuthenticationConfiguration authenticationConfiguration,
-            ILogger<AcademicBenchmarksAuthTokenManager> logger)
+            ILogger<AcademicBenchmarksAuthApiManager> logger)
         {
             Check.NotNull(logger, nameof(logger));
             Check.NotNull(authenticationConfiguration, nameof(authenticationConfiguration));
@@ -41,32 +45,41 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
             _logger = logger;
         }
 
+
         /// <summary>
-        ///     Retrieves a base64 encoded token containing authentication information needed for AB-Connect
+        /// Create a HttpRequest that includes authentication info
         /// </summary>
-        /// <returns>base64 encoded token string</returns>
-        public Task<string> GetTokenAsync()
+        /// <param name="httpMethod"></param>
+        /// <param name="url"></param>
+        /// <param name="queryStringValues"></param>
+        /// <param name="content"></param>
+        /// <returns></returns>
+        public Task<HttpRequestMessage> GetAuthenticatedRequestAsync(
+            HttpMethod httpMethod,
+            Uri uri,
+            HttpContent content = null
+            )
+
         {
-            //If there is a token, and there are at least 5min left to expiration, use it.
-            if (!string.IsNullOrWhiteSpace(_token) && _unixUtcExpiration > GetUnixTime(
-                    DateTime.UtcNow.AddSeconds(
-                        _learningStandardsProviderConfiguration?.AuthorizationWindowSeconds
-                        ?? DefaultTimeWindow)))
+            var requestBuilder = new UriBuilder(uri);
+            var queryString = HttpUtility.ParseQueryString(requestBuilder.Query);
+
+
+            // add authentication to query
+            var newExpiration = DateTime.UtcNow.AddMinutes(DefaultTimeWindow);
+            var unixUtcExpiration = GetUnixTime(newExpiration);
+            string sig = CreateSignature(_authenticationConfiguration.Secret, unixUtcExpiration);
+
+            queryString["partner.id"] = _authenticationConfiguration.Key;
+            queryString["auth.signature"] = sig;
+            queryString["auth.expires"] = unixUtcExpiration.ToString();
+
+            requestBuilder.Query = queryString.ToString();
+
+            return Task.FromResult(new HttpRequestMessage(httpMethod, requestBuilder.Uri)
             {
-                _logger.LogDebug("Cache hit: ab-auth-token");
-                return Task.FromResult(_token);
-            }
-
-            _unixUtcExpiration = GetUnixTime(DateTime.UtcNow.AddHours(24));
-            string partnerId = _authenticationConfiguration.Key;
-            string partnerKey = _authenticationConfiguration.Secret;
-            string sig = CreateSignature(partnerKey, _unixUtcExpiration);
-
-            _token = CreateBase64Token(partnerId, _unixUtcExpiration, sig);
-
-            _logger.LogDebug($"Created token for {partnerId}, expiring {_unixUtcExpiration}");
-
-            return Task.FromResult(_token);
+                Content = content
+            });
         }
 
         /// <summary>
@@ -75,10 +88,10 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
         /// <param name="partnerKey">The AB-Connect partner key</param>
         /// <param name="unixExpiration">The token expiration in UNIX time</param>
         /// <returns>base64 encoded HMACSHA256 string</returns>
-        private string CreateSignature(string partnerKey, long unixExpiration)
+        private string CreateSignature(string partnerKey, long unixExpiration, string userId = "")
         {
             var keyBytes = Encoding.UTF8.GetBytes(partnerKey);
-            var messageBytes = Encoding.UTF8.GetBytes(unixExpiration.ToString());
+            var messageBytes = Encoding.UTF8.GetBytes(string.Format("{0}\n{1}", unixExpiration.ToString(), userId));
 
             string signature;
             using (HMACSHA256 hmac = new HMACSHA256(keyBytes))
@@ -117,5 +130,6 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
         {
             return new DateTimeOffset(dateTime).ToUnixTimeSeconds();
         }
+
     }
 }

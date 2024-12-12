@@ -1,17 +1,16 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Core.Services
 {
@@ -20,7 +19,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
     {
         private readonly IEdFiOdsApiAuthTokenManagerFactory _edFiOdsApiAuthTokenManagerFactory;
 
-        private readonly ILearningStandardsProviderAuthTokenManagerFactory _learningStandardsProviderAuthTokenManagerFactory;
+        private readonly ILearningStandardsProviderAuthApiManagerFactory _learningStandardsProviderAuthTokenManagerFactory;
 
         private readonly ILearningStandardsDataValidator _learningStandardsDataValidator;
 
@@ -28,7 +27,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
         public LearningStandardsConfigurationValidator(
             IEdFiOdsApiAuthTokenManagerFactory edFiOdsApiAuthTokenManagerFactory,
-            ILearningStandardsProviderAuthTokenManagerFactory learningStandardsProviderAuthTokenManagerFactory,
+            ILearningStandardsProviderAuthApiManagerFactory learningStandardsProviderAuthTokenManagerFactory,
             ILearningStandardsDataValidator learningStandardsDataValidator,
             ILogger<LearningStandardsConfigurationValidator> logger)
         {
@@ -57,7 +56,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
             try
             {
                 return await _learningStandardsDataValidator.ValidateConnection(_learningStandardsProviderAuthTokenManagerFactory
-                        .CreateLearningStandardsProviderAuthTokenManager(learningStandardsAuthenticationConfiguration))
+                        .CreateLearningStandardsProviderAuthApiManager(learningStandardsAuthenticationConfiguration))
                     .ConfigureAwait(false);
             }
             catch (Exception ex)
