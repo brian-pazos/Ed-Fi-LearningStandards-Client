@@ -1,6 +1,3 @@
-using System;
-using System.Linq;
-using System.Net.Http;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using EdFi.Admin.LearningStandards.Core.Services;
@@ -12,6 +9,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.Extensions.Http;
+using System;
+using System.Linq;
+using System.Net.Http;
 
 namespace EdFi.Admin.LearningStandards.Core.Installers
 {
@@ -34,13 +34,17 @@ namespace EdFi.Admin.LearningStandards.Core.Installers
             // Auth Services:
             services.AddSingleton<IEdFiOdsApiAuthTokenManagerFactory, EdFiOdsApiAuthTokenManagerFactory>();
             services
-                .AddSingleton<ILearningStandardsProviderAuthTokenManagerFactory,
-                    AcademicBenchmarksAuthTokenManagerFactory>();
+                .AddSingleton<ILearningStandardsProviderAuthApiManagerFactory,
+                    AcademicBenchmarksAuthApiManagerFactory>();
+
 
 
             services.AddSingleton<AcademicBenchmarksLearningStandardsDataRetriever>();
             services.AddSingleton<ILearningStandardsDataRetriever>(x => x.GetRequiredService<AcademicBenchmarksLearningStandardsDataRetriever>());
             services.AddSingleton<ILearningStandardsDataValidator>(x => x.GetRequiredService<AcademicBenchmarksLearningStandardsDataRetriever>());
+
+            // Data Mapper Registration:
+            services.AddSingleton<ILearningStandardsDataMapper, LearningStandardsDataMapper>();
 
             services.AddSingleton<IEdFiBulkJsonPersisterFactory, EdFiBulkJsonPersisterFactory>();
 
@@ -57,7 +61,7 @@ namespace EdFi.Admin.LearningStandards.Core.Installers
             services
                 .ConfigureDefaultLearningStandardSynchronizationOptions<
                     LearningStandardsSynchronizationOptions>(options => options.ForceFullSync = false);
-            
+
 
             return services;
         }

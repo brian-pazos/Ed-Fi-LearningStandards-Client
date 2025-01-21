@@ -1,8 +1,11 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
+using EdFi.Admin.LearningStandards.Core.Configuration;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Net;
 using System.Net.Http;
@@ -10,9 +13,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EdFi.Admin.LearningStandards.Core.Configuration;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace EdFi.Admin.LearningStandards.Core.Auth
 {
@@ -131,5 +131,6 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
             _logger.LogError(ex.Message);
             return ex;
         }
+
     }
 }

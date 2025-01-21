@@ -1,8 +1,13 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
+using EdFi.Admin.LearningStandards.Core.Auth;
+using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +16,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EdFi.Admin.LearningStandards.Core.Auth;
-using EdFi.Admin.LearningStandards.Core.Configuration;
-using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace EdFi.Admin.LearningStandards.Core.Services
 {
@@ -63,7 +63,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            _logger.LogInformation(
+            _logger.LogDebug(
                 $"Beginning Post for Batch Json Model. Resource: {edFiBulkJson.Resource} Schema: {edFiBulkJson.Schema}");
 
             foreach (var resourceData in edFiBulkJson.Data)
@@ -91,7 +91,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                         .ConfigureAwait(false));
             }
 
-            _logger.LogInformation(
+            _logger.LogDebug(
                 $"Successfully loaded {responses.Count(x => x.IsSuccess)} of {responses.Count} {edFiBulkJson.Resource} Resources in Batch Json Model.");
 
             return responses;

@@ -1,8 +1,14 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
+using EdFi.Admin.LearningStandards.Core.Auth;
+using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Models;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Async;
 using System.Collections.Concurrent;
@@ -11,12 +17,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using EdFi.Admin.LearningStandards.Core.Auth;
-using EdFi.Admin.LearningStandards.Core.Configuration;
-using EdFi.Admin.LearningStandards.Core.Models;
-using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace EdFi.Admin.LearningStandards.Core.Services
 {
@@ -43,7 +43,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
         private readonly ILearningStandardsDataRetriever _learningStandardsDataRetriever;
 
-        private readonly ILearningStandardsProviderAuthTokenManagerFactory _learningStandardsProviderAuthTokenManagerFactory;
+        private readonly ILearningStandardsProviderAuthApiManagerFactory _learningStandardsProviderAuthTokenManagerFactory;
         private readonly IChangeSequencePersister _changeSequencePersister;
         private readonly IOptions<LearningStandardsSynchronizationOptions> _defaultOptions;
 
@@ -58,7 +58,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
             IEdFiOdsApiAuthTokenManagerFactory odsApiAuthTokenManagerFactory,
             IEdFiBulkJsonPersisterFactory bulkJsonPersisterFactory,
             ILearningStandardsDataRetriever learningStandardsDataRetriever,
-            ILearningStandardsProviderAuthTokenManagerFactory learningStandardsProviderAuthTokenManagerFactory,
+            ILearningStandardsProviderAuthApiManagerFactory learningStandardsProviderAuthTokenManagerFactory,
             IChangeSequencePersister changeSequencePersister,
             IOptions<LearningStandardsSynchronizationOptions> defaultOptions,
             ILogger<LearningStandardsSynchronizer> logger)
@@ -113,11 +113,11 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
                 var syncStartSequence = options.ForceFullSync
                     ? new ChangeSequence
-                      {
-                          Key = new ChangeSequenceKey(
+                    {
+                        Key = new ChangeSequenceKey(
                               odsApiConfiguration.OAuthAuthenticationConfiguration.Key,
                               learningStandardsAuthenticationConfiguration.Key)
-                      }
+                    }
                     : await _changeSequencePersister.GetAsync(
                         odsApiConfiguration.OAuthAuthenticationConfiguration.Key,
                         learningStandardsAuthenticationConfiguration.Key,
@@ -129,7 +129,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
                 var learningStandardAuthTokenManager =
                     _learningStandardsProviderAuthTokenManagerFactory
-                        .CreateLearningStandardsProviderAuthTokenManager(
+                        .CreateLearningStandardsProviderAuthApiManager(
                             learningStandardsAuthenticationConfiguration);
 
                 var descriptorResult = await EnsureDescriptors(
@@ -141,20 +141,28 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                         progress)
                     .ConfigureAwait(false);
 
+
                 if (!descriptorResult.IsSuccess)
                 {
                     return descriptorResult;
                 }
 
-
                 _logger.LogInformation("Retrieving available learning standard information.");
 
-                var maxAvailableChangeSequence =
-                    (await _learningStandardsDataRetriever.GetChangesAsync(
+                var availableChanges = await _learningStandardsDataRetriever.GetChangesAsync(
                                                               syncStartSequence,
                                                               learningStandardAuthTokenManager,
                                                               cancellationToken)
-                                                          .ConfigureAwait(false)).ChangesAvailableInformation?.MaxAvailable;
+                                                          .ConfigureAwait(false);
+
+                if (!availableChanges.ChangesAvailableInformation.Available)
+                {
+                    _logger.LogWarning("There are no changes available. Your instance is up to date.");
+                    return ResponseModel.Success("There are no changes available. Your instance is up to date.");
+
+                }
+
+                var maxAvailableChangeSequence = availableChanges.ChangesAvailableInformation.MaxAvailable;
 
                 var syncResult = await EnsureLearningStandards(
                         odsApiConfiguration,
@@ -199,7 +207,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
             {
                 var learningStandardAuthTokenManager =
                     _learningStandardsProviderAuthTokenManagerFactory
-                        .CreateLearningStandardsProviderAuthTokenManager(
+                        .CreateLearningStandardsProviderAuthApiManager(
                             learningStandardsAuthenticationConfiguration);
 
                 if (_changeSequencePersister is DefaultChangeSequencePersister)
@@ -226,7 +234,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         private async Task<IResponse> EnsureDescriptors(
             IEdFiOdsApiConfiguration odsApiConfiguration,
             IEdFiBulkJsonPersister bulkJsonPersister,
-            IAuthTokenManager learningAuthTokenManager,
+            IAuthApiManager learningAuthTokenManager,
             IChangeSequence syncStartSequence,
             CancellationToken cancellationToken,
             IProgress<LearningStandardsSynchronizerProgressInfo> progressEventHandler)
@@ -278,6 +286,9 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                         _odsApiClientConfiguration.MaxSimultaneousRequests,
                         cancellationToken)
                     .ConfigureAwait(false);
+
+
+
             }
             catch (LearningStandardsHttpRequestException lsrEx)
             {
@@ -302,7 +313,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         private async Task<IResponse> EnsureLearningStandards(
             IEdFiOdsApiConfiguration odsApiConfiguration,
             IEdFiBulkJsonPersister bulkJsonPersister,
-            IAuthTokenManager learningAuthTokenManager,
+            IAuthApiManager learningAuthTokenManager,
             IChangeSequence syncStartSequence,
             CancellationToken cancellationToken,
             IProgress<LearningStandardsSynchronizerProgressInfo> progressEventHandler)
@@ -312,73 +323,112 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
             progressEventHandler?.Report(new LearningStandardsSynchronizerProgressInfo(nameof(EnsureLearningStandards), "Starting", LearningStandardsBaseProgressPercentage));
 
-            int recordCounter = 0;
+            // avoid processing duplicates
+            var processedCompleteDocuments = new ConcurrentDictionary<Guid, int>();
+            var processedSections = new ConcurrentDictionary<Guid, int>();
+
+            int processedSegmentsCounter = 0;
+            int overallRecordCounter = 0;
 
             try
             {
-                _logger.LogInformation("Synchronization process starting.");
+                _logger.LogDebug("Synchronization process starting.");
 
-                var learningStandardsProcess = _learningStandardsDataRetriever.GetLearningStandards(
+                var changedSegmentsProcess = _learningStandardsDataRetriever.GetChangedSegments(
                     odsApiConfiguration.Version,
                     syncStartSequence,
                     learningAuthTokenManager,
                     cancellationToken);
 
-                processId = learningStandardsProcess.ProcessId;
+                processId = changedSegmentsProcess.ProcessId;
 
-                await learningStandardsProcess.AsyncEntityEnumerable
-                    .ParallelForEachAsync(
-                        async model =>
+
+                await changedSegmentsProcess.AsyncEntityEnumerable.ParallelForEachAsync(
+                    async changedSegment =>
+                    {
+                        _logger.LogDebug($"Processing Segment Doc:{changedSegment.DocumentId} Sec:({changedSegment.SectionId})");
+
+                        var skipProcessing = processedCompleteDocuments.TryGetValue(changedSegment.DocumentId, out _)
+                        || (changedSegment.SectionId.HasValue && processedSections.TryGetValue(changedSegment.SectionId.Value, out _));
+
+                        if (!skipProcessing)
                         {
-                            var result = await bulkJsonPersister
-                                .PostEdFiBulkJson(
-                                    model,
-                                    cancellationToken)
-                                .ConfigureAwait(false);
-
-                            results.Add(result);
-                            int currentRecordCount = Interlocked.Add(
-                                ref recordCounter,
-                                result.Count);
-
-                            _logger.LogInformation(
-                                "{TaskName} : {Status} : Cumulative records processed: {count}",
-                                nameof(EnsureLearningStandards),
-                                "In Progress",
-                                currentRecordCount);
-
-                            int totalRecordCount;
-                            while (!_countsByProcessId.TryGetValue(processId, out totalRecordCount))
-                            {
-                                cancellationToken.ThrowIfCancellationRequested();
-                            }
-
-                            _logger.LogDebug($"TotalRecordCount: {totalRecordCount}");
-
-                            // Takes the remaining percentage left after the descriptor process, determines progress, then
-                            // adds back the base percentage.
-                            int progressPercentage = Convert.ToInt32(
-                                ((LearningStandardRemainingSyncProcessPercentage / (double) totalRecordCount)
-                                * currentRecordCount) + LearningStandardsBaseProgressPercentage);
+                            var standardsProcess = _learningStandardsDataRetriever.GetSegmentLearningStandards(
+                                    odsApiConfiguration.Version,
+                                    changedSegment,
+                                    learningAuthTokenManager,
+                                    cancellationToken);
 
 
-                            //Allows "Completed" status line to write the full 100%
-                            progressPercentage = progressPercentage >= LearningStandardsLimitProgressPercentage
-                                ? LearningStandardsLimitProgressPercentage
-                                : progressPercentage;
+                            await standardsProcess.AsyncEntityEnumerable.ForEachAsync(
+                                async model =>
+                                {
 
-                            _logger.LogDebug($"Current progress percentage: {progressPercentage}");
+                                    _logger.LogDebug($"Post to EdFi Doc:{changedSegment.DocumentId} Sec:({changedSegment.SectionId}) records: {model.Data.Count}.");
+                                    var result = await bulkJsonPersister
+                                                            .PostEdFiBulkJson(
+                                                                model,
+                                                                cancellationToken)
+                                                            .ConfigureAwait(false);
 
-                            progressEventHandler?.Report(
-                                new
-                                    LearningStandardsSynchronizerProgressInfo(
-                                        nameof(EnsureLearningStandards),
-                                        "In Progress",
-                                        progressPercentage));
-                        },
-                        _odsApiClientConfiguration.MaxSimultaneousRequests,
-                        cancellationToken)
-                    .ConfigureAwait(false);
+                                    int currentRecordCount = Interlocked.Add(
+                                                                ref overallRecordCounter,
+                                                                result.Count);
+
+                                },
+                                cancellationToken
+                                );
+                        }
+                        else
+                        {
+                            _logger.LogDebug($"Segment already processed. Skipped Doc:{changedSegment.DocumentId} Sec:({changedSegment.SectionId})");
+                        }
+
+                        if (changedSegment.SectionId.HasValue)
+                        {
+                            processedSections.TryAdd(changedSegment.SectionId.Value, 1);
+                        }
+                        else
+                        {
+                            processedCompleteDocuments.TryAdd(changedSegment.DocumentId, 1);
+                        }
+
+                        var currentSegmentCount = Interlocked.Add(ref processedSegmentsCounter, 1);
+                        _logger.LogDebug($"TotalRecordCount: {currentSegmentCount}");
+
+                        int totalSegmentsCount;
+                        while (!_countsByProcessId.TryGetValue(processId, out totalSegmentsCount))
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                        }
+
+                        // Takes the remaining percentage left after the descriptor process, determines progress, then
+                        // adds back the base percentage.
+                        int progressPercentage = Convert.ToInt32(
+                            ((LearningStandardRemainingSyncProcessPercentage / (double)totalSegmentsCount)
+                            * currentSegmentCount) + LearningStandardsBaseProgressPercentage);
+
+
+                        //Allows "Completed" status line to write the full 100%
+                        progressPercentage = progressPercentage >= LearningStandardsLimitProgressPercentage
+                            ? LearningStandardsLimitProgressPercentage
+                            : progressPercentage;
+
+                        _logger.LogDebug($"Current progress percentage: {progressPercentage}");
+
+                        progressEventHandler?.Report(
+                            new
+                                LearningStandardsSynchronizerProgressInfo(
+                                    nameof(EnsureLearningStandards),
+                                    "In Progress",
+                                    progressPercentage));
+
+                    },
+                    _odsApiClientConfiguration.MaxSimultaneousRequests,
+                    cancellationToken
+                    );
+
+                // _logger.LogInformation($"({recordCounter}) Learning Standard records were processed.");
 
                 int expectedRecordCount;
                 while (!_countsByProcessId.TryGetValue(processId, out expectedRecordCount))
@@ -386,9 +436,9 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                     cancellationToken.ThrowIfCancellationRequested();
                 }
 
-                if (recordCounter < expectedRecordCount)
+                if (processedSegmentsCounter < expectedRecordCount)
                 {
-                    string errorMessage = $"Not all expected records ({expectedRecordCount}) were processed ({recordCounter}).";
+                    string errorMessage = $"Not all expected records ({expectedRecordCount}) were processed ({processedSegmentsCounter}).";
                     results.Add(
                         new IResponse[]
                         {

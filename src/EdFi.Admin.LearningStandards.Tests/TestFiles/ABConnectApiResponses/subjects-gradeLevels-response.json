@@ -1,0 +1,310 @@
+{
+    "links": { "self": "https://api.abconnect.instructure.com/rest/v4.1/standards?facet=disciplines.subjects,education_levels.grades&limit=0" },
+    "data": [],
+    "meta": {
+        "count": 9904,
+        "offset": 0,
+        "limit": 0,
+        "facets": [
+            {
+                "facet": "education_levels.grades",
+                "count": 14,
+                "details": [
+                    {
+                        "count": 4012,
+                        "data": {
+                            "descr": "12th Grade",
+                            "guid": "F1FA9904-3B53-11E0-B042-495E9DFF4B22",
+                            "seq": 140,
+                            "code": "12"
+                        }
+                    },
+                    {
+                        "count": 3921,
+                        "data": {
+                            "seq": 130,
+                            "code": "11",
+                            "guid": "F1FA8BD0-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "11th Grade"
+                        }
+                    },
+                    {
+                        "data": {
+                            "descr": "10th Grade",
+                            "guid": "F1FA7E92-3B53-11E0-B042-495E9DFF4B22",
+                            "seq": 120,
+                            "code": "10"
+                        },
+                        "count": 3515
+                    },
+                    {
+                        "data": {
+                            "guid": "F1FA7154-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "9th Grade",
+                            "code": "9",
+                            "seq": 110
+                        },
+                        "count": 3329
+                    },
+                    {
+                        "count": 1335,
+                        "data": {
+                            "seq": 90,
+                            "code": "7",
+                            "descr": "7th Grade",
+                            "guid": "F1FA56F6-3B53-11E0-B042-495E9DFF4B22"
+                        }
+                    },
+                    {
+                        "data": {
+                            "guid": "F1FA642A-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "8th Grade",
+                            "code": "8",
+                            "seq": 100
+                        },
+                        "count": 1332
+                    },
+                    {
+                        "data": {
+                            "guid": "F1FA49AE-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "6th Grade",
+                            "seq": 80,
+                            "code": "6"
+                        },
+                        "count": 1220
+                    },
+                    {
+                        "count": 1172,
+                        "data": {
+                            "descr": "5th Grade",
+                            "guid": "F1FA3C84-3B53-11E0-B042-495E9DFF4B22",
+                            "seq": 70,
+                            "code": "5"
+                        }
+                    },
+                    {
+                        "data": {
+                            "descr": "4th Grade",
+                            "guid": "F1FA2F50-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "4",
+                            "seq": 60
+                        },
+                        "count": 1143
+                    },
+                    {
+                        "count": 1131,
+                        "data": {
+                            "guid": "F1FA221C-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "3rd Grade",
+                            "seq": 50,
+                            "code": "3"
+                        }
+                    },
+                    {
+                        "count": 1075,
+                        "data": {
+                            "descr": "2nd Grade",
+                            "guid": "F1FA14D4-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "2",
+                            "seq": 40
+                        }
+                    },
+                    {
+                        "count": 1074,
+                        "data": {
+                            "code": "1",
+                            "seq": 30,
+                            "guid": "F1FA078C-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "1st Grade"
+                        }
+                    },
+                    {
+                        "data": {
+                            "descr": "Kindergarten",
+                            "guid": "F1F9FA12-3B53-11E0-B042-495E9DFF4B22",
+                            "seq": 20,
+                            "code": "K"
+                        },
+                        "count": 792
+                    },
+                    {
+                        "count": 528,
+                        "data": {
+                            "descr": "Pre-K",
+                            "guid": "F1F9EAAE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PK",
+                            "seq": 10
+                        }
+                    }
+                ]
+            },
+            {
+                "count": 20,
+                "facet": "disciplines.subjects",
+                "details": [
+                    {
+                        "count": 2264,
+                        "data": {
+                            "code": "LANG",
+                            "guid": "F1FAC302-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Language Arts"
+                        }
+                    },
+                    {
+                        "data": {
+                            "code": "MATH",
+                            "descr": "Mathematics",
+                            "guid": "F1FB2F2C-3B53-11E0-B042-495E9DFF4B22"
+                        },
+                        "count": 2122
+                    },
+                    {
+                        "count": 1439,
+                        "data": {
+                            "guid": "F1FB8062-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "The Arts",
+                            "code": "ARTS"
+                        }
+                    },
+                    {
+                        "data": {
+                            "descr": "Health Education",
+                            "guid": "F1FB589E-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "HEAL"
+                        },
+                        "count": 1336
+                    },
+                    {
+                        "count": 1159,
+                        "data": {
+                            "guid": "F1FB4B38-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Social Studies",
+                            "code": "SOC"
+                        }
+                    },
+                    {
+                        "count": 858,
+                        "data": {
+                            "guid": "F1FB65E6-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Physical Education",
+                            "code": "PHYS"
+                        }
+                    },
+                    {
+                        "data": {
+                            "guid": "F1FB3DD2-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Science",
+                            "code": "SCI"
+                        },
+                        "count": 540
+                    },
+                    {
+                        "data": {
+                            "code": "MUSC",
+                            "descr": "Arts: Music",
+                            "guid": "F1FBA858-3B53-11E0-B042-495E9DFF4B22"
+                        },
+                        "count": 504
+                    },
+                    {
+                        "data": {
+                            "code": "CS",
+                            "descr": "Computer Science",
+                            "guid": "D1071912-3113-11E8-AE30-AE8FC144B826"
+                        },
+                        "count": 471
+                    },
+                    {
+                        "count": 471,
+                        "data": {
+                            "code": "TECH",
+                            "guid": "F1FB8DD2-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Technology"
+                        }
+                    },
+                    {
+                        "data": {
+                            "descr": "Arts: Theatre",
+                            "guid": "F1FBC2DE-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "THTR"
+                        },
+                        "count": 308
+                    },
+                    {
+                        "data": {
+                            "descr": "Arts: Dance",
+                            "guid": "F1FBD012-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "DANC"
+                        },
+                        "count": 270
+                    },
+                    {
+                        "data": {
+                            "guid": "F1FB7338-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Foreign Language",
+                            "code": "FORN"
+                        },
+                        "count": 235
+                    },
+                    {
+                        "data": {
+                            "descr": "Personal Financial Literacy",
+                            "guid": "F1FE2588-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "PFL"
+                        },
+                        "count": 205
+                    },
+                    {
+                        "count": 201,
+                        "data": {
+                            "descr": "Arts: Visual Arts",
+                            "guid": "F1FBB596-3B53-11E0-B042-495E9DFF4B22",
+                            "code": "VIS"
+                        }
+                    },
+                    {
+                        "data": {
+                            "code": "LIB",
+                            "guid": "F1FBDDD2-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Library Literacy"
+                        },
+                        "count": 170
+                    },
+                    {
+                        "data": {
+                            "code": "PERS",
+                            "guid": "F1FC4808-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Personal Development"
+                        },
+                        "count": 122
+                    },
+                    {
+                        "data": {
+                            "code": "MEDA",
+                            "descr": "Arts: Media Arts",
+                            "guid": "61796c57-5cef-4e77-91f9-2483852cc3dc"
+                        },
+                        "count": 96
+                    },
+                    {
+                        "data": {
+                            "guid": "F1FD1BF2-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Social Development",
+                            "code": "SDEV"
+                        },
+                        "count": 62
+                    },
+                    {
+                        "count": 46,
+                        "data": {
+                            "guid": "F1FD787C-3B53-11E0-B042-495E9DFF4B22",
+                            "descr": "Approaches to Learning",
+                            "code": "APPR"
+                        }
+                    }
+                ]
+            }
+        ],
+        "took": 155
+    }
+}

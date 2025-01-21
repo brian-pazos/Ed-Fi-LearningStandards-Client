@@ -1,20 +1,15 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using EdFi.Admin.LearningStandards.Core.Installers;
+using EdFi.Admin.LearningStandards.Core.Models.ABConnectApiModels;
 using EdFi.Admin.LearningStandards.Core.Services;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using EdFi.Admin.LearningStandards.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Http;
@@ -23,6 +18,13 @@ using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 {
@@ -45,7 +47,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
         private Mock<IOptionsSnapshot<AcademicBenchmarksOptions>> _academicBenchmarksSnapshotOptionMock;
 
-        private Mock<IAuthTokenManager> _authTokenManager;
+        private Mock<IAuthApiManager> _authTokenManager;
 
         private readonly NUnitConsoleLogger<LearningStandardsSynchronizer> _debugLogger = new NUnitConsoleLogger<LearningStandardsSynchronizer>(LogLevel.Information);
 
@@ -59,15 +61,15 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
                 .Returns(_debugLogger);
             _loggerFactory = lf.Object;
 
-            _authTokenManager = new Mock<IAuthTokenManager>();
-            _authTokenManager.Setup(x => x.GetTokenAsync())
-                .Returns(Task.FromResult("ThisIsAToken"));
+            _authTokenManager = new Mock<IAuthApiManager>();
+            _authTokenManager.Setup(x => x.GetAuthenticatedRequestAsync(It.IsAny<HttpMethod>(), It.IsAny<Uri>(), It.IsAny<HttpContent>()))
+                .Returns(Task.FromResult(new HttpRequestMessage()));
 
             _academicBenchmarksSnapshotOptionMock = new Mock<IOptionsSnapshot<AcademicBenchmarksOptions>>();
             _academicBenchmarksSnapshotOptionMock.Setup(x => x.Value)
                 .Returns(
                     new AcademicBenchmarksOptions
-                        { Url = "https://localhost:7777" });
+                    { Url = "https://localhost:7777" });
         }
 
         [Test]
@@ -115,7 +117,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             var available = pluginConnector.LearningStandardsChangesAvailable;
 
             //Act
-            var actual = await available.ChangesAvailableAsync(odsApiConfig,authConfig).ConfigureAwait(false);
+            var actual = await available.ChangesAvailableAsync(odsApiConfig, authConfig).ConfigureAwait(false);
 
             //Assert
             Assert.NotNull(actual);
@@ -197,8 +199,8 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
             //Config
             IAuthenticationConfiguration abAuthConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
-            var learningStandardsAuthFactory = new Mock<ILearningStandardsProviderAuthTokenManagerFactory>();
-            learningStandardsAuthFactory.Setup(x => x.CreateLearningStandardsProviderAuthTokenManager(It.IsAny<IAuthenticationConfiguration>()))
+            var learningStandardsAuthFactory = new Mock<ILearningStandardsProviderAuthApiManagerFactory>();
+            learningStandardsAuthFactory.Setup(x => x.CreateLearningStandardsProviderAuthApiManager(It.IsAny<IAuthenticationConfiguration>()))
                 .Returns(_authTokenManager.Object);
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(_defaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
@@ -209,10 +211,15 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
             var defaultChangeSequencePersister = new DefaultChangeSequencePersister(new NUnitConsoleLogger<DefaultChangeSequencePersister>());
 
+            var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+                .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
+
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
                 _academicBenchmarksSnapshotOptionMock.Object,
                 logger,
-                clientFactoryMock.Object);
+                clientFactoryMock.Object,
+                dataMapperMock.Object);
 
             //Synchronizer
             var synchronizer = new LearningStandardsSynchronizer(
@@ -297,8 +304,8 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
             //Config
             IAuthenticationConfiguration abAuthConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
-            var learningStandardsAuthFactory = new Mock<ILearningStandardsProviderAuthTokenManagerFactory>();
-            learningStandardsAuthFactory.Setup(x => x.CreateLearningStandardsProviderAuthTokenManager(It.IsAny<IAuthenticationConfiguration>()))
+            var learningStandardsAuthFactory = new Mock<ILearningStandardsProviderAuthApiManagerFactory>();
+            learningStandardsAuthFactory.Setup(x => x.CreateLearningStandardsProviderAuthApiManager(It.IsAny<IAuthenticationConfiguration>()))
                 .Returns(_authTokenManager.Object);
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(_defaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
@@ -309,10 +316,15 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
             var defaultChangeSequencePersister = new DefaultChangeSequencePersister(new NUnitConsoleLogger<DefaultChangeSequencePersister>());
 
+            var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+                .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
+
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
                 _academicBenchmarksSnapshotOptionMock.Object,
                 logger,
-                clientFactoryMock.Object);
+                clientFactoryMock.Object,
+                dataMapperMock.Object);
 
             //Synchronizer
             var synchronizer = new LearningStandardsSynchronizer(
