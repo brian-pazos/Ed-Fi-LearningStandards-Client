@@ -14,20 +14,20 @@ namespace EdFi.Admin.LearningStandards.Core.Services.Interfaces
     public interface ILearningStandardsDataRetriever
     {
         AsyncEnumerableOperation<EdFiBulkJsonModel> GetLearningStandardsDescriptors(
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             IChangeSequence syncStartSequence,
             IAuthApiManager learningStandardsProviderAuthTokenManager,
             CancellationToken cancellationToken = default);
 
         AsyncEnumerableOperation<LearningStandardsSegmentModel> GetChangedSegments(
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             IChangeSequence syncStartSequence,
             IAuthApiManager learningStandardsProviderAuthTokenManager,
             CancellationToken cancellationToken = default);
 
 
         AsyncEnumerableOperation<EdFiBulkJsonModel> GetSegmentLearningStandards(
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             LearningStandardsSegmentModel section,
             IAuthApiManager learningStandardsProviderAuthTokenManager,
             CancellationToken cancellationToken = default);

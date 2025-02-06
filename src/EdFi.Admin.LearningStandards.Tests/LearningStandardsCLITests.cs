@@ -27,13 +27,15 @@ namespace EdFi.Admin.LearningStandards.Tests
     [TestFixture]
     public class LearningStandardsCLITests
     {
+        private const string _edfiApiUrl = "https://ed-fi-ods.org/api";
+
         private const string _expectedAccessToken = "940934d3a405492c99572db9329fc081";
 
-        private readonly string _syncArgs = "sync -v --ab-connect-id=abc123 --ab-connect-key=123abc --ed-fi-url=https://ed-fi-ods.org --ed-fi-key=abc123 --ed-fi-secret=123abc";
+        private readonly string _syncArgs = $"sync -v --ab-connect-id=abc123 --ab-connect-key=123abc --ed-fi-url={_edfiApiUrl} --ed-fi-key=abc123 --ed-fi-secret=123abc";
 
-        private readonly string _validateArgs = "validate -v --ab-connect-id=abc123 --ab-connect-key=123abc --ed-fi-url=https://ed-fi-ods.org --ed-fi-key=abc123 --ed-fi-secret=123abc";
+        private readonly string _validateArgs = $"validate -v --ab-connect-id=abc123 --ab-connect-key=123abc --ed-fi-url={_edfiApiUrl} --ed-fi-key=abc123 --ed-fi-secret=123abc";
 
-        private readonly string _changesArgs = "changes -v --ab-connect-id=abc123 --ab-connect-key=123abc --ed-fi-url=https://ed-fi-ods.org --ed-fi-key=abc123 --ed-fi-secret=123abc";
+        private readonly string _changesArgs = $"changes -v --ab-connect-id=abc123 --ab-connect-key=123abc --ed-fi-url={_edfiApiUrl} --ed-fi-key=abc123 --ed-fi-secret=123abc";
 
         [Test]
         public void Can_build_application()
@@ -42,6 +44,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("validate/authentication", GetDefaultProxyResponse())
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
+
 
             //Act
             var actual = new LearningStandardsCLIApplication(services =>
@@ -59,10 +62,16 @@ namespace EdFi.Admin.LearningStandards.Tests
         [Test]
         public async Task Can_validate_configuration_only()
         {
+            // Get the last path segment
+            string apiInfoPath = new Uri(_edfiApiUrl).Segments[^1].TrimEnd('/');
+
             //Arrange
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("standards", ABConnectApiFileBasedTestCases.ValidApiResponse_LearningStandards())
-                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
+                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
+
             var app = new LearningStandardsCLIApplication(services =>
             {
                 services.ConfigureAll<HttpClientFactoryOptions>(options =>
@@ -105,11 +114,15 @@ namespace EdFi.Admin.LearningStandards.Tests
             //Arrange
             var consoleStringListWriter = new ConsoleStringListWriter();
             Console.SetOut(consoleStringListWriter);
+            // Get the last path segment
+            string apiInfoPath = new Uri(_edfiApiUrl).Segments[^1].TrimEnd('/');
 
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("standards", JToken.Parse(ABConnectApiFileBasedTestCases.ValidApiResponse_LearningStandards()))
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
-                .AddRouteResponse("events", JToken.Parse(ABConnectApiFileBasedTestCases.ValidApiResponse_EventsSingleResponse()));
+                .AddRouteResponse("events", JToken.Parse(ABConnectApiFileBasedTestCases.ValidApiResponse_EventsSingleResponse()))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
             var app = new LearningStandardsCLIApplication(services =>
             {
                 services.ConfigureAll<HttpClientFactoryOptions>(options =>
@@ -165,10 +178,13 @@ namespace EdFi.Admin.LearningStandards.Tests
             var consoleStringListWriter = new ConsoleStringListWriter();
             Console.SetOut(consoleStringListWriter);
 
+            // Get the last path segment
+            string apiInfoPath = new Uri(_edfiApiUrl).Segments[^1].TrimEnd('/');
 
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("validate/authentication", GetDefaultProxyResponse())
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")))
                 .AddRouteResponse("*", HttpStatusCode.OK);
 
             var app = new LearningStandardsCLIApplication(services =>
@@ -219,10 +235,12 @@ namespace EdFi.Admin.LearningStandards.Tests
             var consoleStringListWriter = new ConsoleStringListWriter();
             Console.SetOut(consoleStringListWriter);
 
+            string apiInfoPath = new Uri(_edfiApiUrl).Segments[^1].TrimEnd('/');
 
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("validate/authentication", GetDefaultProxyResponse())
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")))
                 .AddRouteResponse("*", HttpStatusCode.OK);
 
             var app = new LearningStandardsCLIApplication(services =>
@@ -277,7 +295,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             }
 
             public AsyncEnumerableOperation<EdFiBulkJsonModel> GetLearningStandardsDescriptors(
-                EdFiOdsApiCompatibilityVersion version,
+                EdFiVersionModel version,
                 IChangeSequence changeSequence,
                 IAuthApiManager learningStandardsProviderAuthTokenManager,
                 CancellationToken cancellationToken)
@@ -286,7 +304,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             }
 
             public AsyncEnumerableOperation<EdFiBulkJsonModel> GetLearningStandards(
-                EdFiOdsApiCompatibilityVersion version,
+                EdFiVersionModel version,
                 IChangeSequence syncStartSequence,
                 IAuthApiManager learningStandardsProviderAuthTokenManager,
                 CancellationToken cancellationToken = default)
@@ -325,12 +343,12 @@ namespace EdFi.Admin.LearningStandards.Tests
                 }
             }
 
-            public AsyncEnumerableOperation<LearningStandardsSegmentModel> GetChangedSegments(EdFiOdsApiCompatibilityVersion version, IChangeSequence syncStartSequence, IAuthApiManager learningStandardsProviderAuthTokenManager, CancellationToken cancellationToken = default)
+            public AsyncEnumerableOperation<LearningStandardsSegmentModel> GetChangedSegments(EdFiVersionModel version, IChangeSequence syncStartSequence, IAuthApiManager learningStandardsProviderAuthTokenManager, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }
 
-            public AsyncEnumerableOperation<EdFiBulkJsonModel> GetSegmentLearningStandards(EdFiOdsApiCompatibilityVersion version, LearningStandardsSegmentModel section, IAuthApiManager learningStandardsProviderAuthTokenManager, CancellationToken cancellationToken = default)
+            public AsyncEnumerableOperation<EdFiBulkJsonModel> GetSegmentLearningStandards(EdFiVersionModel version, LearningStandardsSegmentModel section, IAuthApiManager learningStandardsProviderAuthTokenManager, CancellationToken cancellationToken = default)
             {
                 throw new NotImplementedException();
             }

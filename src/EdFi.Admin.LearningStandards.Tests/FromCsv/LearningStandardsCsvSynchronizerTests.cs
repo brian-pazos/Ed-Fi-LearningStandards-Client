@@ -1,14 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Models;
 using EdFi.Admin.LearningStandards.Core.Services;
 using EdFi.Admin.LearningStandards.Core.Services.FromCsv;
 using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
@@ -18,6 +11,14 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 {
@@ -81,7 +82,7 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 
             var odsLoggerFactory = new Mock<ILoggerFactory>();
             odsLoggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(_debugLogger);
-           
+
             var clientFactoryMock = new Mock<IHttpClientFactory>();
             var fakeHttpMessageHandler = new MockJsonHttpMessageHandler();
             fakeHttpMessageHandler.AddRouteResponse("token", GetDefaultAccessCodeResponse(expiresIn: 3600));
@@ -90,11 +91,21 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
             var edfiTokenManager = clientFactoryMock.Object;
             IEdFiOdsApiAuthTokenManagerFactory edfiOdsTokenManagerFactory =
                 new EdFiOdsApiAuthTokenManagerFactory(edfiTokenManager, odsLoggerFactory.Object);
-           
+
             IEdFiBulkJsonPersisterFactory edFiBulkJsonPersister = new FakeEdFiBulkJsonPersisterFactory();
 
+            var versionManager = new Mock<IEdFiVersionManager>();
+            versionManager.Setup(x => x.GetEdFiVersion(odsApiConfiguration, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new EdFiVersionModel(
+                                            EdFiWebApiVersion.v7x,
+                                            EdFiDataStandardVersion.DS5_2,
+                                            new EdFiWebApiInfo()
+                                            )
+                );
+
+
             var learningStandardsCsvSynchronizer =
-                new LearningStandardsCsvSynchronizer(odsApiClientConfiguration, edfiOdsTokenManagerFactory, edFiBulkJsonPersister,
+                new LearningStandardsCsvSynchronizer(odsApiClientConfiguration, versionManager.Object, edfiOdsTokenManagerFactory, edFiBulkJsonPersister,
                     _debugLogger, _csvLearningStandardsDataRetriever);
             var prog = new TestProgress(_loggerFactory);
 
@@ -129,12 +140,18 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 
         private class FakeEdFiBulkJsonPersister : IEdFiBulkJsonPersister
         {
+            public Task<EdFiVersionModel> GetEdFiVersion()
+            {
+                throw new NotImplementedException();
+            }
+
             public async Task<IList<IResponse>> PostEdFiBulkJson(EdFiBulkJsonModel edFiBulkJson,
                 CancellationToken cancellationToken)
             {
                 var responses = new List<IResponse>();
                 await Task.Run(() =>
-                { responses.AddRange(edFiBulkJson.Data
+                {
+                    responses.AddRange(edFiBulkJson.Data
                         .Select(data => new ResponseModel(true, null, null, HttpStatusCode.OK)));
                 }, cancellationToken);
                 return responses;

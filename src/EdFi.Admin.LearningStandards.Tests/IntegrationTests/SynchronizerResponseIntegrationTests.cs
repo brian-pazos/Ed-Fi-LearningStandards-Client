@@ -7,6 +7,7 @@ using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using EdFi.Admin.LearningStandards.Core.Installers;
+using EdFi.Admin.LearningStandards.Core.Models;
 using EdFi.Admin.LearningStandards.Core.Models.ABConnectApiModels;
 using EdFi.Admin.LearningStandards.Core.Services;
 using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
@@ -207,12 +208,22 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             IEdFiOdsApiClientConfiguration odsApiClientConfiguration = new EdFiOdsApiClientConfiguration();
             var edfiTokenManager = clientFactoryMock.Object;
             IEdFiOdsApiAuthTokenManagerFactory edfiOdsTokenManagerFactory = new EdFiOdsApiAuthTokenManagerFactory(edfiTokenManager, odsLoggerFactory.Object);
-            IEdFiBulkJsonPersisterFactory edFiBulkJsonPersister = new EdFiBulkJsonPersisterFactory(clientFactoryMock.Object, bulkJsonLogger);
+
+            var versionManager = new Mock<IEdFiVersionManager>();
+            versionManager.Setup(x => x.GetEdFiVersion(odsApiConfig, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new EdFiVersionModel(
+                                            EdFiWebApiVersion.v2x,
+                                            EdFiDataStandardVersion.DS5_2,
+                                            new EdFiWebApiInfo()
+                                            )
+                );
+
+            IEdFiBulkJsonPersisterFactory edFiBulkJsonPersister = new EdFiBulkJsonPersisterFactory(versionManager.Object, clientFactoryMock.Object, bulkJsonLogger);
 
             var defaultChangeSequencePersister = new DefaultChangeSequencePersister(new NUnitConsoleLogger<DefaultChangeSequencePersister>());
 
             var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
-            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
@@ -221,10 +232,20 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
                 clientFactoryMock.Object,
                 dataMapperMock.Object);
 
+            var edFiVersionManager = new Mock<IEdFiVersionManager>();
+            edFiVersionManager.Setup(x => x.GetEdFiVersion(odsApiConfig, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new EdFiVersionModel(
+                                            EdFiWebApiVersion.v7x,
+                                            EdFiDataStandardVersion.DS5_2,
+                                            new EdFiWebApiInfo()
+                                            )
+                );
+
             //Synchronizer
             var synchronizer = new LearningStandardsSynchronizer(
                 odsApiClientConfiguration,
                 edfiOdsTokenManagerFactory,
+                edFiVersionManager.Object,
                 edFiBulkJsonPersister,
                 sut,
                 learningStandardsAuthFactory.Object,
@@ -311,13 +332,24 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(_defaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
             IEdFiOdsApiClientConfiguration odsApiClientConfiguration = new EdFiOdsApiClientConfiguration();
             var edfiTokenManager = clientFactoryMock.Object;
+
+            var versionManager = new Mock<IEdFiVersionManager>();
+            versionManager.Setup(x => x.GetEdFiVersion(odsApiConfig, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new EdFiVersionModel(
+                                            EdFiWebApiVersion.v2x,
+                                            EdFiDataStandardVersion.DS5_2,
+                                            new EdFiWebApiInfo()
+                                            )
+                );
+
+
             IEdFiOdsApiAuthTokenManagerFactory edfiOdsTokenManagerFactory = new EdFiOdsApiAuthTokenManagerFactory(edfiTokenManager, odsLoggerFactory.Object);
-            IEdFiBulkJsonPersisterFactory edFiBulkJsonPersister = new EdFiBulkJsonPersisterFactory(clientFactoryMock.Object, bulkJsonLogger);
+            IEdFiBulkJsonPersisterFactory edFiBulkJsonPersister = new EdFiBulkJsonPersisterFactory(versionManager.Object, clientFactoryMock.Object, bulkJsonLogger);
 
             var defaultChangeSequencePersister = new DefaultChangeSequencePersister(new NUnitConsoleLogger<DefaultChangeSequencePersister>());
 
             var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
-            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
@@ -326,10 +358,20 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
                 clientFactoryMock.Object,
                 dataMapperMock.Object);
 
+            var edFiVersionManager = new Mock<IEdFiVersionManager>();
+            edFiVersionManager.Setup(x => x.GetEdFiVersion(odsApiConfig, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new EdFiVersionModel(
+                                            EdFiWebApiVersion.v7x,
+                                            EdFiDataStandardVersion.DS5_2,
+                                            new EdFiWebApiInfo()
+                                            )
+                );
+
             //Synchronizer
             var synchronizer = new LearningStandardsSynchronizer(
                 odsApiClientConfiguration,
                 edfiOdsTokenManagerFactory,
+                edFiVersionManager.Object,
                 edFiBulkJsonPersister,
                 sut,
                 learningStandardsAuthFactory.Object,

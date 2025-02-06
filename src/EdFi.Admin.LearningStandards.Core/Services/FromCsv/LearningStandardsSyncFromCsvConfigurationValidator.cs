@@ -3,13 +3,14 @@
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
+using EdFi.Admin.LearningStandards.Core.Auth;
+using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces.FromCsv;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Threading.Tasks;
-using EdFi.Admin.LearningStandards.Core.Auth;
-using EdFi.Admin.LearningStandards.Core.Configuration;
-using EdFi.Admin.LearningStandards.Core.Services.Interfaces.FromCsv;
-using Microsoft.Extensions.Logging;
 
 namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
 {
@@ -18,13 +19,17 @@ namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
     {
         private readonly IEdFiOdsApiAuthTokenManagerFactory _edFiOdsApiAuthTokenManagerFactory;
 
+        private readonly IEdFiVersionManager _edFiVersionManager;
+
         private readonly ILogger<LearningStandardsSyncFromCsvConfigurationValidator> _logger;
 
         public LearningStandardsSyncFromCsvConfigurationValidator(
             IEdFiOdsApiAuthTokenManagerFactory edFiOdsApiAuthTokenManagerFactory,
+            IEdFiVersionManager edFiVersionManager,
             ILogger<LearningStandardsSyncFromCsvConfigurationValidator> logger)
         {
             _edFiOdsApiAuthTokenManagerFactory = edFiOdsApiAuthTokenManagerFactory;
+            _edFiVersionManager = edFiVersionManager;
             _logger = logger;
         }
 
@@ -37,8 +42,8 @@ namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
                     throw new NotSupportedException(
                         "Sync from csv operation is not supported on ODS API version 2. Only supported from version 3 onwards.");
 
-                string token = await _edFiOdsApiAuthTokenManagerFactory
-                    .CreateEdFiOdsApiAuthTokenManager(edFiOdsApiConfiguration)
+                string token = await (await _edFiOdsApiAuthTokenManagerFactory
+                    .CreateEdFiOdsApiAuthTokenManager(_edFiVersionManager, edFiOdsApiConfiguration))
                     .GetTokenAsync()
                     .ConfigureAwait(false);
 

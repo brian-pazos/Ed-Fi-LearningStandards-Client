@@ -1,13 +1,13 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Linq;
 using CommandLine;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Configuration;
+using System;
+using System.Linq;
 
 namespace EdFi.Admin.LearningStandards.CLI
 {
@@ -42,8 +42,12 @@ namespace EdFi.Admin.LearningStandards.CLI
         [Option("ed-fi-version", Required = false, HelpText = "The Ed-Fi ODS version to use. Defaults to latest version.")]
         public EdFiOdsApiCompatibilityVersion EdFiCompatibilityVersion { get; set; } = Enum.GetValues(typeof(EdFiOdsApiCompatibilityVersion)).Cast<EdFiOdsApiCompatibilityVersion>().Max();
 
-        [Option("ed-fi-school-year", Required = false, HelpText = "The school year to use when querying the Ed-Fi ODS API.")]
+        [Option("ed-fi-school-year", Required = false, HelpText = "The school year used when querying the Ed-Fi ODS API. Applicable only to ODS version 6.x and earlier.")]
         public int? EdFiSchoolYear { get; set; }
+
+        [Option("ed-fi-routing-context-key", Required = false, HelpText = "The routing context key used when querying the Ed-Fi ODS API. Applicable only to ODS version 7.x.")]
+        public string EdFiRoutingContextKey { get; set; }
+
 
         [Option("ed-fi-retry-limit", Required = false, HelpText = "The number of retry attempts the application will make in case of failure. Defaults to 2.")]
         public int EdFiRetryLimit { get; set; } = 2;
@@ -66,7 +70,13 @@ namespace EdFi.Admin.LearningStandards.CLI
         public EdFiOdsApiConfiguration ToEdFiOdsApiConfiguration()
         {
             var authResult = new AuthenticationConfiguration(EdFiKey, EdFiSecret);
-            return new EdFiOdsApiConfiguration(EdFiUrl, EdFiCompatibilityVersion, authResult, EdFiSchoolYear, EdFiAuthenticationUrl);
+            return new EdFiOdsApiConfiguration(
+                EdFiUrl,
+                EdFiCompatibilityVersion,
+                authResult,
+                EdFiSchoolYear,
+                EdFiRoutingContextKey,
+                EdFiAuthenticationUrl);
         }
 
         public AuthenticationConfiguration ToAcademicBenchmarksAuthenticationConfiguration()

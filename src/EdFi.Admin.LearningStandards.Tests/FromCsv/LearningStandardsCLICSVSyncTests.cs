@@ -3,11 +3,6 @@
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.CLI;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Services;
@@ -18,6 +13,11 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System;
+using System.Linq;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 {
@@ -86,7 +86,7 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
         public void Will_display_help_on_empty_params()
         {
             //Arrange
-            var app = new LearningStandardsCLICSVSyncApplication(services =>{});
+            var app = new LearningStandardsCLICSVSyncApplication(services => { });
 
             //Assert -> Act
             Assert.ThrowsAsync<LearningStandardsCLIParserException>(async () =>
@@ -102,8 +102,10 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
             var consoleStringListWriter = new ConsoleStringListWriter();
             Console.SetOut(consoleStringListWriter);
 
+
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(ExpectedAccessToken))
+                .AddRouteResponse($"/", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")))
                 .AddRouteResponse("*", HttpStatusCode.OK);
 
             var app = new LearningStandardsCLICSVSyncApplication(services =>
@@ -156,6 +158,7 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(ExpectedAccessToken))
+                .AddRouteResponse($"/", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")))
                 .AddRouteResponse("*", HttpStatusCode.OK);
 
             var app = new LearningStandardsCLICSVSyncApplication(services =>
@@ -224,8 +227,8 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
             {
                 try
                 {
-                   await Task.Run(() => throw new LearningStandardsHttpRequestException("Bad Request", HttpStatusCode.BadRequest,
-                        "", "SyncFromCsv"));
+                    await Task.Run(() => throw new LearningStandardsHttpRequestException("Bad Request", HttpStatusCode.BadRequest,
+                         "", "SyncFromCsv"));
                 }
                 catch (Exception ex)
                 {

@@ -19,6 +19,8 @@ namespace EdFi.Admin.LearningStandards.Core.Services
     {
         private readonly IEdFiOdsApiAuthTokenManagerFactory _edFiOdsApiAuthTokenManagerFactory;
 
+        private readonly IEdFiVersionManager _edFiVersionManager;
+
         private readonly ILearningStandardsProviderAuthApiManagerFactory _learningStandardsProviderAuthTokenManagerFactory;
 
         private readonly ILearningStandardsDataValidator _learningStandardsDataValidator;
@@ -27,11 +29,13 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
         public LearningStandardsConfigurationValidator(
             IEdFiOdsApiAuthTokenManagerFactory edFiOdsApiAuthTokenManagerFactory,
+            IEdFiVersionManager edFiVersionManager,
             ILearningStandardsProviderAuthApiManagerFactory learningStandardsProviderAuthTokenManagerFactory,
             ILearningStandardsDataValidator learningStandardsDataValidator,
             ILogger<LearningStandardsConfigurationValidator> logger)
         {
             _edFiOdsApiAuthTokenManagerFactory = edFiOdsApiAuthTokenManagerFactory;
+            _edFiVersionManager = edFiVersionManager;
             _learningStandardsProviderAuthTokenManagerFactory = learningStandardsProviderAuthTokenManagerFactory;
             _learningStandardsDataValidator = learningStandardsDataValidator;
             _logger = logger;
@@ -69,8 +73,8 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         {
             try
             {
-                string token = await _edFiOdsApiAuthTokenManagerFactory
-                    .CreateEdFiOdsApiAuthTokenManager(edFiOdsApiConfiguration)
+                string token = await (await _edFiOdsApiAuthTokenManagerFactory
+                    .CreateEdFiOdsApiAuthTokenManager(_edFiVersionManager, edFiOdsApiConfiguration))
                     .GetTokenAsync()
                     .ConfigureAwait(false);
 

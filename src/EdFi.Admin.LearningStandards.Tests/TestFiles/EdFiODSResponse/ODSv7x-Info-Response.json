@@ -1,0 +1,27 @@
+{
+    "version": "7.2",
+    "informationalVersion": "7.2",
+    "suite": "3",
+    "build": "7.2.1201.0",
+    "dataModels": [
+        {
+            "name": "Ed-Fi",
+            "version": "5.1.0",
+            "informationalVersion": "The Ed-Fi Data Model 5.1"
+        },
+        {
+            "name": "TPDM",
+            "version": "1.1.0",
+            "informationalVersion": "TPDM-Core"
+        }
+    ],
+    "urls": {
+        "dependencies": "https://domain/_webroot/v72/mssql/STRC/WebApi/{schoolYear}/metadata/data/v3/dependencies",
+        "openApiMetadata": "https://domain/_webroot/v72/mssql/STRC/WebApi/{schoolYear}/metadata/",
+        "oauth": "https://domain/_webroot/v72/mssql/STRC/WebApi/{schoolYear}/oauth/token",
+        "dataManagementApi": "https://domain/_webroot/v72/mssql/STRC/WebApi/{schoolYear}/data/v3/",
+        "xsdMetadata": "https://domain/_webroot/v72/mssql/STRC/WebApi/{schoolYear}/metadata/xsd",
+        "changeQueries": "https://domain/_webroot/v72/mssql/STRC/WebApi/{schoolYear}/changeQueries/v1/",
+        "composites": "https://domain/_webroot/v72/mssql/STRC/WebApi/{schoolYear}/composites/v1/"
+    }
+}
