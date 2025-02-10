@@ -28,6 +28,7 @@ namespace EdFi.Admin.LearningStandards.Tests
     {
         private Mock<IAuthApiManager> _authTokenManager;
         private Mock<IOptionsSnapshot<AcademicBenchmarksOptions>> _academicBenchmarksSnapshotOptionMock;
+        private EdFiOdsApiConfiguration _odsApiConfiguration;
         private const string DescriptorsRouteType = "Descriptors";
         private const string ChangesRouteType = "Changes";
         private const string SyncRouteType = "Sync";
@@ -37,6 +38,12 @@ namespace EdFi.Admin.LearningStandards.Tests
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
+            _odsApiConfiguration = new EdFiOdsApiConfiguration(
+                                    "http://localhost:7000",
+                                    EdFiOdsApiCompatibilityVersion.v2,
+                                    new AuthenticationConfiguration("key", "secret"),
+                                    2018);
+
 
             _academicBenchmarksSnapshotOptionMock = new Mock<IOptionsSnapshot<AcademicBenchmarksOptions>>();
             _academicBenchmarksSnapshotOptionMock.Setup(x => x.Value)
@@ -295,7 +302,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             var logger = new NUnitConsoleLogger<AcademicBenchmarksLearningStandardsDataRetriever>();
 
             var mockLearningStandardsDataMapper = new Mock<ILearningStandardsDataMapper>();
-            mockLearningStandardsDataMapper.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            mockLearningStandardsDataMapper.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
@@ -336,7 +343,7 @@ namespace EdFi.Admin.LearningStandards.Tests
             var logger = new NUnitConsoleLogger<AcademicBenchmarksLearningStandardsDataRetriever>();
 
             var mockLearningStandardsDataMapper = new Mock<ILearningStandardsDataMapper>();
-            mockLearningStandardsDataMapper.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            mockLearningStandardsDataMapper.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
@@ -359,7 +366,7 @@ namespace EdFi.Admin.LearningStandards.Tests
         [TestCaseSource(typeof(ABConnectApiFileBasedTestCases), nameof(ABConnectApiFileBasedTestCases.ValidApiResponse_DescriptorsTestCases))]
         public void Get_learning_standard_descriptors(
             string routeType,
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             int bulkJsonObjectCount,
             string syncResponse
             )
@@ -388,7 +395,18 @@ namespace EdFi.Admin.LearningStandards.Tests
             //        new EdFiBulkJsonModel()
             //    });
 
+            //var versionManager = new Mock<IEdFiVersionManager>();
+            //versionManager.Setup(x => x.GetEdFiVersion(_odsApiConfiguration, It.IsAny<CancellationToken>()))
+            //    .ReturnsAsync(() => new EdFiVersionModel(
+            //                                EdFiWebApiVersion.v2x,
+            //                                EdFiDataStandardVersion.DS5_2,
+            //                                new EdFiWebApiInfo()
+            //                                )
+            //    );
+
+
             var mapper = new LearningStandardsDataMapper(
+                // versionManager.Object,
                 _academicBenchmarksSnapshotOptionMock.Object,
                 new NUnitConsoleLogger<LearningStandardsDataMapper>());
 
@@ -446,7 +464,7 @@ namespace EdFi.Admin.LearningStandards.Tests
         [TestCaseSource(typeof(ABConnectApiFileBasedTestCases), nameof(ABConnectApiFileBasedTestCases.ValidApiResponse_SegmentsChangesTestCases))]
         public void Get_modified_segments(
             string routeType,
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             int bulkJsonObjectCount,
             string syncResponse
             )
@@ -465,6 +483,15 @@ namespace EdFi.Admin.LearningStandards.Tests
             var logger = new NUnitConsoleLogger<AcademicBenchmarksLearningStandardsDataRetriever>();
 
             var blankChangeSequence = new ChangeSequence();
+
+            var versionManager = new Mock<IEdFiVersionManager>();
+            versionManager.Setup(x => x.GetEdFiVersion(_odsApiConfiguration, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new EdFiVersionModel(
+                                            EdFiWebApiVersion.v2x,
+                                            EdFiDataStandardVersion.DS5_2,
+                                            new EdFiWebApiInfo()
+                                            )
+                );
 
             var mapper = new LearningStandardsDataMapper(
                 _academicBenchmarksSnapshotOptionMock.Object,

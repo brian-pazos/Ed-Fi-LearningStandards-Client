@@ -40,6 +40,12 @@
     <None Update="TestFiles\ABConnectApiResponses\subjects-gradeLevels-response.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="TestFiles\EdFiODSResponse\ODSv6x-Info-Response.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="TestFiles\EdFiODSResponse\ODSv7x-Info-Response.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="TestFiles\Sample-metadata\Expected-LS-Metadata.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

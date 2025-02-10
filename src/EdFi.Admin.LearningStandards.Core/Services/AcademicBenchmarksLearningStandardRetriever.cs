@@ -59,7 +59,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         }
 
         public AsyncEnumerableOperation<EdFiBulkJsonModel> GetLearningStandardsDescriptors(
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             IChangeSequence syncStartSequence,
             IAuthApiManager learningStandardsProviderAuthApiManager,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -216,7 +216,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         }
 
         public AsyncEnumerableOperation<LearningStandardsSegmentModel> GetChangedSegments(
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             IChangeSequence syncStartSequence,
             IAuthApiManager learningStandardsProviderAuthApiManager,
             CancellationToken cancellationToken)
@@ -282,7 +282,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         }
 
         public AsyncEnumerableOperation<EdFiBulkJsonModel> GetSegmentLearningStandards(
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             LearningStandardsSegmentModel segment,
             IAuthApiManager learningStandardsProviderAuthApiManager,
             CancellationToken cancellationToken = default)
@@ -294,7 +294,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
             var processingId = Guid.NewGuid();
 
             // get all sections
-            System.Collections.Async.IAsyncEnumerable<EdFiBulkJsonModel> asyncEnumerable = new AsyncEnumerable<EdFiBulkJsonModel>(
+            IAsyncEnumerable<EdFiBulkJsonModel> asyncEnumerable = new AsyncEnumerable<EdFiBulkJsonModel>(
             async yield =>
             {
                 // get all sections
@@ -402,7 +402,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         private IAsyncEnumerable<EdFiBulkJsonModel> GetEdFiBulkAsyncEnumerable<U>(
             Uri requestUri,
             IAuthApiManager learningStandardsProviderAuthApiManager,
-            EdFiOdsApiCompatibilityVersion version,
+            EdFiVersionModel version,
             CancellationToken cancellationToken = default(CancellationToken)) where U : class, ILearningStandardsApiResponseModel
         {
 

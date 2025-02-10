@@ -32,6 +32,7 @@ namespace EdFi.Admin.LearningStandards.Core.Installers
             services.InstallLearningStandardHttpClients();
 
             // Auth Services:
+            services.AddSingleton<IEdFiVersionManager, EdFiVersionManager>();
             services.AddSingleton<IEdFiOdsApiAuthTokenManagerFactory, EdFiOdsApiAuthTokenManagerFactory>();
             services
                 .AddSingleton<ILearningStandardsProviderAuthApiManagerFactory,
@@ -73,10 +74,15 @@ namespace EdFi.Admin.LearningStandards.Core.Installers
             services.AddSingleton(odsApiClientConfiguration);
 
             // Auth Services:
+            services.AddSingleton<IEdFiVersionManager, EdFiVersionManager>();
             services.AddSingleton<IEdFiOdsApiAuthTokenManagerFactory, EdFiOdsApiAuthTokenManagerFactory>();
 
             // HTTP Client Registration:
             services.InstallLearningStandardsEdFiHttpClients();
+
+
+            // Data Mapper Registration:
+            services.AddSingleton<ILearningStandardsDataMapper, LearningStandardsDataMapper>();
 
             // CSV data reading and mapping services:
             services.AddSingleton<ISwaggerDocumentRetriever, SwaggerDocumentRetriever>();

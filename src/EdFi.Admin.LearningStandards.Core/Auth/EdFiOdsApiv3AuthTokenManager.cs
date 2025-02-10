@@ -4,6 +4,7 @@
 // See the LICENSE and NOTICES files in the project root for more information.
 
 using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using System;
@@ -20,6 +21,8 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
     {
         private readonly IEdFiOdsApiConfiguration _edFiOdsApiConfiguration;
 
+        private readonly IEdFiVersionManager _edFiVersionManager;
+
         private readonly HttpClient _httpClient;
 
         private readonly ILogger<EdFiOdsApiv3AuthTokenManager> _logger;
@@ -27,16 +30,19 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
         private readonly TimeSpan _refreshWindow = TimeSpan.FromMinutes(5);
 
         private string _token;
+        private string _webApiVersion;
 
         private DateTime _utcExpiration = DateTime.MinValue;
 
-        public EdFiOdsApiv3AuthTokenManager(IEdFiOdsApiConfiguration edFiOdsApiConfiguration, HttpClient httpClient, ILogger<EdFiOdsApiv3AuthTokenManager> logger)
+        public EdFiOdsApiv3AuthTokenManager(IEdFiOdsApiConfiguration edFiOdsApiConfiguration, IEdFiVersionManager edFiVersionManager, HttpClient httpClient, ILogger<EdFiOdsApiv3AuthTokenManager> logger)
         {
             Check.NotNull(edFiOdsApiConfiguration, nameof(edFiOdsApiConfiguration));
+            Check.NotNull(edFiVersionManager, nameof(edFiVersionManager));
             Check.NotNull(httpClient, nameof(httpClient));
             Check.NotNull(logger, nameof(logger));
 
             _edFiOdsApiConfiguration = edFiOdsApiConfiguration;
+            _edFiVersionManager = edFiVersionManager;
             _logger = logger;
             _httpClient = httpClient;
         }
@@ -64,9 +70,10 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
             return _token;
         }
 
-        private HttpRequestMessage GetAccessTokenRequest()
+        private async Task<HttpRequestMessage> GetAccessTokenRequest()
         {
-            var uri = EdFiOdsApiConfigurationHelper.ResolveAuthenticationUrl(_edFiOdsApiConfiguration.Version, _edFiOdsApiConfiguration.AuthenticationUrl, "/token");
+            // var uri = EdFiOdsApiConfigurationHelper.ResolveAuthenticationUrl(_edFiOdsApiConfiguration.Version, _edFiOdsApiConfiguration.AuthenticationUrl, "/token");
+            var uri = await _edFiVersionManager.ResolveAuthenticationUrl(_edFiOdsApiConfiguration);
 
             var ret = new HttpRequestMessage(HttpMethod.Post, uri);
             ret.Headers.Authorization = new AuthenticationHeaderValue("Basic",
@@ -82,7 +89,7 @@ namespace EdFi.Admin.LearningStandards.Core.Auth
         {
             try
             {
-                var accessTokenRequest = GetAccessTokenRequest();
+                var accessTokenRequest = await GetAccessTokenRequest();
 
                 _logger.LogDebug($"Sending access token request to {accessTokenRequest.RequestUri}");
 

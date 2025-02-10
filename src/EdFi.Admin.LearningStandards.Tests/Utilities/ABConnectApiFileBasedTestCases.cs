@@ -1,4 +1,5 @@
 using EdFi.Admin.LearningStandards.Core;
+using EdFi.Admin.LearningStandards.Core.Models;
 
 namespace EdFi.Admin.LearningStandards.Tests.Utilities
 {
@@ -26,7 +27,7 @@ namespace EdFi.Admin.LearningStandards.Tests.Utilities
                            new object[]
                            {
                                "standards",
-                               EdFiOdsApiCompatibilityVersion.v3,
+                               new EdFiVersionModel(EdFiWebApiVersion.v6x, EdFiDataStandardVersion.DS4, new EdFiWebApiInfo()),
                                3,
                                TestCaseHelper.GetTestCaseTextFromFile("ABConnectApiResponses/subjects-gradeLevels-response.json")
                            },
@@ -40,7 +41,7 @@ namespace EdFi.Admin.LearningStandards.Tests.Utilities
                            new object[]
                            {
                                "events",
-                               EdFiOdsApiCompatibilityVersion.v3,
+                               new EdFiVersionModel(EdFiWebApiVersion.v7x, EdFiDataStandardVersion.DS5_2, new EdFiWebApiInfo()),
                                3,
                                TestCaseHelper.GetTestCaseTextFromFile("ABConnectApiResponses/events-response.json")
                            },

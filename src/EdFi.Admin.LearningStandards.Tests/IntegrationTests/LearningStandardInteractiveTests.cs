@@ -63,7 +63,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             var logger = new NUnitConsoleLogger<AcademicBenchmarksLearningStandardsDataRetriever>();
 
             var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
-            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
@@ -123,7 +123,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             var logger = new NUnitConsoleLogger<AcademicBenchmarksLearningStandardsDataRetriever>();
 
             var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
-            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
@@ -156,7 +156,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
         [TestCase(EdFiOdsApiCompatibilityVersion.v2)]
         [TestCase(EdFiOdsApiCompatibilityVersion.v3)]
-        public async Task Interactive_AB_Descriptor_Test(EdFiOdsApiCompatibilityVersion version)
+        public async Task Interactive_AB_Descriptor_Test(EdFiVersionModel version)
         {
             var academicBenchmarksSnapshotOptionMock =
                 new Mock<IOptionsSnapshot<AcademicBenchmarksOptions>>();
@@ -184,7 +184,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
 
             var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
-            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(
@@ -211,13 +211,13 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 
             File.WriteAllLines($@"C:\temp\ls_desc_out_{version}.txt", collector);
 
-            switch (version)
+            switch (version.WebApiVersion)
             {
                 // Assert
-                case EdFiOdsApiCompatibilityVersion.v2:
+                case EdFiWebApiVersion.v2x:
                     Assert.AreEqual(2, count);
                     break;
-                case EdFiOdsApiCompatibilityVersion.v3:
+                case EdFiWebApiVersion.v6x:
                     Assert.AreEqual(3, count);
                     break;
                 default:
@@ -252,7 +252,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             var logger = new NUnitConsoleLogger<AcademicBenchmarksLearningStandardsDataRetriever>();
 
             var dataMapperMock = new Mock<ILearningStandardsDataMapper>();
-            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiOdsApiCompatibilityVersion>(), It.IsAny<ILearningStandardsApiResponseModel>()))
+            dataMapperMock.Setup(m => m.ToEdFiModel(It.IsAny<EdFiVersionModel>(), It.IsAny<ILearningStandardsApiResponseModel>()))
                 .Returns(new List<EdFiBulkJsonModel> { new EdFiBulkJsonModel() });
 
             var sut = new AcademicBenchmarksLearningStandardsDataRetriever(

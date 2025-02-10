@@ -3,6 +3,11 @@
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
+using EdFi.Admin.LearningStandards.Core.Auth;
+using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces.FromCsv;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Async;
 using System.Collections.Concurrent;
@@ -10,10 +15,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using EdFi.Admin.LearningStandards.Core.Auth;
-using EdFi.Admin.LearningStandards.Core.Configuration;
-using EdFi.Admin.LearningStandards.Core.Services.Interfaces.FromCsv;
-using Microsoft.Extensions.Logging;
 
 namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
 {
@@ -32,8 +33,11 @@ namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
 
         private readonly IEdFiOdsApiClientConfiguration _odsApiClientConfiguration;
 
+        private readonly IEdFiVersionManager _edFiVersionManager;
+
         public LearningStandardsCsvSynchronizer(
             IEdFiOdsApiClientConfiguration odsApiClientConfiguration,
+            IEdFiVersionManager versionManager,
             IEdFiOdsApiAuthTokenManagerFactory odsApiAuthTokenManagerFactory,
             IEdFiBulkJsonPersisterFactory bulkJsonPersisterFactory,
             ILogger<LearningStandardsCsvSynchronizer> logger,
@@ -45,6 +49,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
             _logger = logger;
             _learningStandardsCsvDataRetriever = learningStandardsCsvDataRetriever;
             _learningStandardsCsvDataRetriever.ProcessCountEvent += OnCountEvent;
+            _edFiVersionManager = versionManager;
         }
 
         public async Task<IResponse> SynchronizeAsync(IEdFiOdsApiConfiguration odsApiConfiguration,
@@ -56,7 +61,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services.FromCsv
             Check.NotNull(options, nameof(options));
 
             var bulkJsonPersister = _bulkJsonPersisterFactory.CreateEdFiBulkJsonPersister(
-                _odsApiAuthTokenManagerFactory.CreateEdFiOdsApiAuthTokenManager(odsApiConfiguration),
+                await _odsApiAuthTokenManagerFactory.CreateEdFiOdsApiAuthTokenManager(_edFiVersionManager, odsApiConfiguration),
                 odsApiConfiguration);
 
             if (string.IsNullOrEmpty(options.ResourcesMetaDataUri))

@@ -1,15 +1,13 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Services;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using EdFi.Admin.LearningStandards.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -17,6 +15,10 @@ using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
 using Polly;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests
 {
@@ -53,7 +55,19 @@ namespace EdFi.Admin.LearningStandards.Tests
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
             var httpClient = GetConfiguredClient(httpHandler);
 
-            var manager = new EdFiOdsApiv3AuthTokenManager(odsApiConfig, httpClient, logger);
+            // Get the last path segment
+            string lastSegment = new Uri(_defaultOdsUrl).Segments[^1].TrimEnd('/');
+
+            var fakeHttpMessageHandler = new MockJsonHttpMessageHandler();
+            fakeHttpMessageHandler.AddRouteResponse($"{lastSegment}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
+            var clientFactoryMock = new Mock<IHttpClientFactory>();
+            clientFactoryMock.Setup(x => x.CreateClient(nameof(IEdFiVersionManager)))
+                             .Returns(new HttpClient(fakeHttpMessageHandler));
+
+            var versionManager = new EdFiVersionManager(clientFactoryMock.Object, new NUnitConsoleLogger<EdFiVersionManager>());
+
+            var manager = new EdFiOdsApiv3AuthTokenManager(odsApiConfig, versionManager, httpClient, logger);
 
             //Act
             string actual = await manager.GetTokenAsync().ConfigureAwait(false);
@@ -78,7 +92,20 @@ namespace EdFi.Admin.LearningStandards.Tests
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse(expiresIn: 2));
             var httpClient = GetConfiguredClient(httpHandler);
 
-            var manager = new EdFiOdsApiv3AuthTokenManager(odsApiConfig, httpClient, logger);
+            // Get the last path segment
+            string lastSegment = new Uri(_defaultOdsUrl).Segments[^1].TrimEnd('/');
+
+            var fakeHttpMessageHandler = new MockJsonHttpMessageHandler();
+            fakeHttpMessageHandler.AddRouteResponse($"{lastSegment}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
+            var clientFactoryMock = new Mock<IHttpClientFactory>();
+            clientFactoryMock.Setup(x => x.CreateClient(nameof(IEdFiVersionManager)))
+                             .Returns(new HttpClient(fakeHttpMessageHandler));
+
+            var versionManager = new EdFiVersionManager(clientFactoryMock.Object, new NUnitConsoleLogger<EdFiVersionManager>());
+
+
+            var manager = new EdFiOdsApiv3AuthTokenManager(odsApiConfig, versionManager, httpClient, logger);
 
             //Act
             string firstActual = await manager.GetTokenAsync().ConfigureAwait(false);
@@ -106,7 +133,19 @@ namespace EdFi.Admin.LearningStandards.Tests
                 .AddRouteResponse("token", GetDefaultAccessCodeResponse());
             var httpClient = GetConfiguredClient(httpHandler);
 
-            var manager = new EdFiOdsApiv3AuthTokenManager(odsApiConfig, httpClient, logger);
+            // Get the last path segment
+            string lastSegment = new Uri(_defaultOdsUrl).Segments[^1].TrimEnd('/');
+
+            var fakeHttpMessageHandler = new MockJsonHttpMessageHandler();
+            fakeHttpMessageHandler.AddRouteResponse($"{lastSegment}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
+            var clientFactoryMock = new Mock<IHttpClientFactory>();
+            clientFactoryMock.Setup(x => x.CreateClient(nameof(IEdFiVersionManager)))
+                             .Returns(new HttpClient(fakeHttpMessageHandler));
+
+            var versionManager = new EdFiVersionManager(clientFactoryMock.Object, new NUnitConsoleLogger<EdFiVersionManager>());
+
+            var manager = new EdFiOdsApiv3AuthTokenManager(odsApiConfig, versionManager, httpClient, logger);
 
             //Act
             string firstActual = await manager.GetTokenAsync().ConfigureAwait(false);

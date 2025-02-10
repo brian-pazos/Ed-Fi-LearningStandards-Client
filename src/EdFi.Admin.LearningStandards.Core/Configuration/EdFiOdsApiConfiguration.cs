@@ -1,9 +1,7 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
-
-using System;
 
 namespace EdFi.Admin.LearningStandards.Core.Configuration
 {
@@ -22,12 +20,14 @@ namespace EdFi.Admin.LearningStandards.Core.Configuration
             EdFiOdsApiCompatibilityVersion version,
             IAuthenticationConfiguration oAuthAuthenticationConfiguration,
             int? schoolYear = null,
+            string routingContextKey = null,
             string authenticationUrl = null)
         {
             Url = url;
             Version = version;
             OAuthAuthenticationConfiguration = oAuthAuthenticationConfiguration;
             SchoolYear = schoolYear;
+            RoutingContextKey = routingContextKey;
             AuthenticationUrl = authenticationUrl ?? url;
         }
 
@@ -38,6 +38,8 @@ namespace EdFi.Admin.LearningStandards.Core.Configuration
         public IAuthenticationConfiguration OAuthAuthenticationConfiguration { get; }
 
         public int? SchoolYear { get; }
+
+        public string RoutingContextKey { get; }
 
         public EdFiOdsApiCompatibilityVersion Version { get; }
     }

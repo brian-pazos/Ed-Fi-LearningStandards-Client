@@ -5,6 +5,7 @@
 
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Models;
 using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -22,20 +23,30 @@ namespace EdFi.Admin.LearningStandards.Core.Services
     public class EdFiBulkJsonPersister : IEdFiBulkJsonPersister
     {
         private readonly IEdFiOdsApiConfiguration _odsApiConfiguration;
+        private readonly IEdFiVersionManager _edFiVersionManager;
         private readonly IAuthTokenManager _odsApiAuthTokenManager;
         private readonly ILogger<EdFiBulkJsonPersister> _logger;
         private readonly HttpClient _httpClient;
 
+
+
         public EdFiBulkJsonPersister(
             IEdFiOdsApiConfiguration odsApiConfiguration,
+            IEdFiVersionManager edFiVersionManager,
             IAuthTokenManager odsApiAuthTokenManager,
             ILogger<EdFiBulkJsonPersister> logger,
             HttpClient httpClient)
         {
             _odsApiConfiguration = odsApiConfiguration;
+            _edFiVersionManager = edFiVersionManager;
             _odsApiAuthTokenManager = odsApiAuthTokenManager;
             _logger = logger;
             _httpClient = httpClient;
+        }
+
+        public async Task<EdFiVersionModel> GetEdFiVersion()
+        {
+            return await _edFiVersionManager.GetEdFiVersion(_odsApiConfiguration);
         }
 
         public async Task<IList<IResponse>> PostEdFiBulkJson(EdFiBulkJsonModel edFiBulkJson, CancellationToken cancellationToken = default(CancellationToken))
@@ -50,12 +61,13 @@ namespace EdFi.Admin.LearningStandards.Core.Services
             Check.NotEmpty(edFiBulkJson.Resource, nameof(edFiBulkJson.Resource));
             Check.NotNull(edFiBulkJson.Data, nameof(edFiBulkJson.Data));
 
-            var odsResourceUrl = EdFiBulkJsonPersisterHelper.ResolveOdsApiResourceUrl(
-                _odsApiConfiguration.Url,
-                edFiBulkJson.Schema,
-                edFiBulkJson.Resource,
-                _odsApiConfiguration.Version,
-                _odsApiConfiguration.SchoolYear);
+            //var odsResourceUrl = EdFiBulkJsonPersisterHelper.ResolveOdsApiResourceUrl(
+            //    _odsApiConfiguration.Url,
+            //    edFiBulkJson.Schema,
+            //    edFiBulkJson.Resource,
+            //    _odsApiConfiguration.Version,
+            //    _odsApiConfiguration.SchoolYear);
+            var odsResourceUrl = await _edFiVersionManager.ResolveResourceUrl(_odsApiConfiguration, edFiBulkJson.Schema, edFiBulkJson.Resource).ConfigureAwait(false);
 
             _logger.LogDebug($"Url for Batch Json Model derived as: {odsResourceUrl}");
 

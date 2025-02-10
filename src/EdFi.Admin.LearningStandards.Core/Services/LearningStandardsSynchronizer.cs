@@ -51,11 +51,14 @@ namespace EdFi.Admin.LearningStandards.Core.Services
 
         private readonly IEdFiOdsApiAuthTokenManagerFactory _odsApiAuthTokenManagerFactory;
 
+        private readonly IEdFiVersionManager _edFiVersionManager;
+
         private readonly IEdFiOdsApiClientConfiguration _odsApiClientConfiguration;
 
         public LearningStandardsSynchronizer(
             IEdFiOdsApiClientConfiguration odsApiClientConfiguration,
             IEdFiOdsApiAuthTokenManagerFactory odsApiAuthTokenManagerFactory,
+            IEdFiVersionManager edFiVersionManager,
             IEdFiBulkJsonPersisterFactory bulkJsonPersisterFactory,
             ILearningStandardsDataRetriever learningStandardsDataRetriever,
             ILearningStandardsProviderAuthApiManagerFactory learningStandardsProviderAuthTokenManagerFactory,
@@ -68,6 +71,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
             _bulkJsonPersisterFactory = bulkJsonPersisterFactory;
             _learningStandardsDataRetriever = learningStandardsDataRetriever;
             _learningStandardsProviderAuthTokenManagerFactory = learningStandardsProviderAuthTokenManagerFactory;
+            _edFiVersionManager = edFiVersionManager;
             _changeSequencePersister = changeSequencePersister;
             _defaultOptions = defaultOptions;
             _logger = logger;
@@ -123,8 +127,10 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                         learningStandardsAuthenticationConfiguration.Key,
                         cancellationToken);
 
+
+
                 var bulkJsonPersister = _bulkJsonPersisterFactory.CreateEdFiBulkJsonPersister(
-                    _odsApiAuthTokenManagerFactory.CreateEdFiOdsApiAuthTokenManager(odsApiConfiguration),
+                    await _odsApiAuthTokenManagerFactory.CreateEdFiOdsApiAuthTokenManager(_edFiVersionManager, odsApiConfiguration),
                     odsApiConfiguration);
 
                 var learningStandardAuthTokenManager =
@@ -133,7 +139,6 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                             learningStandardsAuthenticationConfiguration);
 
                 var descriptorResult = await EnsureDescriptors(
-                        odsApiConfiguration,
                         bulkJsonPersister,
                         learningStandardAuthTokenManager,
                         syncStartSequence,
@@ -165,7 +170,6 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                 var maxAvailableChangeSequence = availableChanges.ChangesAvailableInformation.MaxAvailable;
 
                 var syncResult = await EnsureLearningStandards(
-                        odsApiConfiguration,
                         bulkJsonPersister,
                         learningStandardAuthTokenManager,
                         syncStartSequence,
@@ -232,7 +236,6 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         }
 
         private async Task<IResponse> EnsureDescriptors(
-            IEdFiOdsApiConfiguration odsApiConfiguration,
             IEdFiBulkJsonPersister bulkJsonPersister,
             IAuthApiManager learningAuthTokenManager,
             IChangeSequence syncStartSequence,
@@ -248,7 +251,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
             {
                 await _learningStandardsDataRetriever
                     .GetLearningStandardsDescriptors(
-                        odsApiConfiguration.Version,
+                        await bulkJsonPersister.GetEdFiVersion(),
                         syncStartSequence,
                         learningAuthTokenManager,
                         cancellationToken)
@@ -311,7 +314,6 @@ namespace EdFi.Admin.LearningStandards.Core.Services
         }
 
         private async Task<IResponse> EnsureLearningStandards(
-            IEdFiOdsApiConfiguration odsApiConfiguration,
             IEdFiBulkJsonPersister bulkJsonPersister,
             IAuthApiManager learningAuthTokenManager,
             IChangeSequence syncStartSequence,
@@ -335,7 +337,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                 _logger.LogDebug("Synchronization process starting.");
 
                 var changedSegmentsProcess = _learningStandardsDataRetriever.GetChangedSegments(
-                    odsApiConfiguration.Version,
+                    await bulkJsonPersister.GetEdFiVersion(),
                     syncStartSequence,
                     learningAuthTokenManager,
                     cancellationToken);
@@ -354,7 +356,7 @@ namespace EdFi.Admin.LearningStandards.Core.Services
                         if (!skipProcessing)
                         {
                             var standardsProcess = _learningStandardsDataRetriever.GetSegmentLearningStandards(
-                                    odsApiConfiguration.Version,
+                                    await bulkJsonPersister.GetEdFiVersion(),
                                     changedSegment,
                                     learningAuthTokenManager,
                                     cancellationToken);

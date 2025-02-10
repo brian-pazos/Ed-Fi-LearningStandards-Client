@@ -3,16 +3,13 @@
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Configuration;
 using EdFi.Admin.LearningStandards.Core.Installers;
+using EdFi.Admin.LearningStandards.Core.Models;
 using EdFi.Admin.LearningStandards.Core.Services;
 using EdFi.Admin.LearningStandards.Core.Services.FromCsv;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using EdFi.Admin.LearningStandards.Core.Services.Interfaces.FromCsv;
 using EdFi.Admin.LearningStandards.Tests.Utilities;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,6 +18,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests.FromCsv
 {
@@ -46,6 +49,9 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
             lf.Setup(m => m.CreateLogger(It.IsAny<string>()))
                 .Returns(new NUnitConsoleLogger<LearningStandardsSyncFromCsvConfigurationValidator>());
             _loggerFactory = lf.Object;
+
+
+
         }
 
         [Test]
@@ -55,11 +61,26 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(OAuthKey, OAuthSecret);
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(
                 DefaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
+
+            string apiInfoPath = new Uri(odsApiConfig.Url).Segments[^1].TrimEnd('/');
+
             var httpHandler = new MockJsonHttpMessageHandler()
-                .AddRouteResponse("token", GetDefaultAccessCodeResponse(ExpectedAccessToken));
+                .AddRouteResponse("token", GetDefaultAccessCodeResponse(ExpectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
             var clientConfiguration = new EdFiOdsApiClientConfiguration(0);
             var pluginConnector = GetConfiguredTestConnector(httpHandler, clientConfiguration);
             var validator = pluginConnector.LearningStandardsSyncFromCsvConfigurationValidator;
+
+            var versionManager = new Mock<IEdFiVersionManager>();
+            versionManager.Setup(x => x.GetEdFiVersion(odsApiConfig, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => new EdFiVersionModel(
+                                            EdFiWebApiVersion.v3x,
+                                            EdFiDataStandardVersion.DS5_2,
+                                            new EdFiWebApiInfo()
+                                            )
+                );
+
 
             //Act
             var actual = await validator.ValidateEdFiOdsApiConfigurationAsync(odsApiConfig).ConfigureAwait(false);
@@ -103,8 +124,13 @@ namespace EdFi.Admin.LearningStandards.Tests.FromCsv
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(OAuthKey, OAuthSecret);
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(
                 DefaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
+
+            string apiInfoPath = new Uri(odsApiConfig.Url).Segments[^1].TrimEnd('/');
+
             var httpHandler = new MockJsonHttpMessageHandler()
-                .AddRouteResponse("token", GetDefaultAccessCodeResponse(ExpectedAccessToken));
+                .AddRouteResponse("token", GetDefaultAccessCodeResponse(ExpectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
             var clientConfiguration = new EdFiOdsApiClientConfiguration(0);
             var pluginConnector = GetConfiguredTestConnector(httpHandler, clientConfiguration);
             var validator = pluginConnector.LearningStandardsSyncFromCsvConfigurationValidator;

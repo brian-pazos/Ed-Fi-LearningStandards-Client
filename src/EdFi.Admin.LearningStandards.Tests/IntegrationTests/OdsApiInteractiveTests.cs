@@ -1,18 +1,22 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System.Net.Http;
-using System.Threading.Tasks;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
+using EdFi.Admin.LearningStandards.Core.Models;
 using EdFi.Admin.LearningStandards.Core.Services;
+using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using EdFi.Admin.LearningStandards.Tests.Utilities;
+using Moq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NUnit.Framework;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 {
@@ -59,8 +63,18 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
                     httpClient,
                     new NUnitConsoleLogger<EdFiOdsApiv2AuthTokenManager>());
 
+                var versionManager = new Mock<IEdFiVersionManager>();
+                versionManager.Setup(x => x.GetEdFiVersion(config, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new EdFiVersionModel(
+                                                EdFiWebApiVersion.v2x,
+                                                EdFiDataStandardVersion.DS5_2,
+                                                new EdFiWebApiInfo()
+                                                )
+                    );
+
                 var results = await new EdFiBulkJsonPersister(
                     config,
+                    versionManager.Object,
                     authTokenManager,
                     new NUnitConsoleLogger<EdFiBulkJsonPersister>(),
                     httpClient).PostEdFiBulkJson(edfiBulkJson).ConfigureAwait(false);
@@ -90,7 +104,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             private const string Secret = "F855FB294190";
 
 
-            [TestCaseSource(typeof(V3),nameof(GetTestCases))]
+            [TestCaseSource(typeof(V3), nameof(GetTestCases))]
             public async Task When_posting_edfi_v3_bulkJson(string bulkJson)
             {
                 var edfiBulkJson = JsonConvert.DeserializeObject<EdFiBulkJsonModel>(bulkJson);
@@ -102,13 +116,24 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
                     EdFiOdsApiCompatibilityVersion.v3,
                     new AuthenticationConfiguration(Key, Secret));
 
+                var versionManager = new Mock<IEdFiVersionManager>();
+                versionManager.Setup(x => x.GetEdFiVersion(config, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(() => new EdFiVersionModel(
+                                                EdFiWebApiVersion.v7x,
+                                                EdFiDataStandardVersion.DS5_2,
+                                                new EdFiWebApiInfo()
+                                                )
+                    );
+
                 var authTokenManager = new EdFiOdsApiv3AuthTokenManager(
                     config,
+                    versionManager.Object,
                     httpClient,
                     new NUnitConsoleLogger<EdFiOdsApiv3AuthTokenManager>());
 
                 var results = await new EdFiBulkJsonPersister(
                     config,
+                    versionManager.Object,
                     authTokenManager,
                     new NUnitConsoleLogger<EdFiBulkJsonPersister>(),
                     httpClient).PostEdFiBulkJson(edfiBulkJson).ConfigureAwait(false);

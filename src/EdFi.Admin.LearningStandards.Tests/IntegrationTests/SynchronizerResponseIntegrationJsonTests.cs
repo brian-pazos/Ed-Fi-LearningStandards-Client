@@ -1,31 +1,25 @@
-﻿// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: Apache-2.0
 // Licensed to the Ed-Fi Alliance under one or more agreements.
 // The Ed-Fi Alliance licenses this file to you under the Apache License, Version 2.0.
 // See the LICENSE and NOTICES files in the project root for more information.
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using EdFi.Admin.LearningStandards.CLI;
 using EdFi.Admin.LearningStandards.Core;
 using EdFi.Admin.LearningStandards.Core.Auth;
 using EdFi.Admin.LearningStandards.Core.Configuration;
-using EdFi.Admin.LearningStandards.Core.Installers;
+using EdFi.Admin.LearningStandards.Core.Models;
 using EdFi.Admin.LearningStandards.Core.Services;
 using EdFi.Admin.LearningStandards.Core.Services.Interfaces;
 using EdFi.Admin.LearningStandards.Tests.Utilities;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using Moq.Protected;
 using Newtonsoft.Json;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
 {
@@ -70,7 +64,7 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             _academicBenchmarksSnapshotOptionMock.Setup(x => x.Value)
                 .Returns(
                     new AcademicBenchmarksOptions
-                        { Url = "https://localhost:7777" });
+                    { Url = "https://localhost:7777" });
         }
 
         public void Cli_application_can_retrieve_change_documents_only()
@@ -120,6 +114,11 @@ namespace EdFi.Admin.LearningStandards.Tests.IntegrationTests
             public FileEdFiBulkJsonPersister(string filePath)
             {
                 _filePath = filePath;
+            }
+
+            public async Task<EdFiVersionModel> GetEdFiVersion()
+            {
+                return new EdFiVersionModel(EdFiWebApiVersion.Unknown, EdFiDataStandardVersion.Unknown, new EdFiWebApiInfo());
             }
 
             public async Task<IList<IResponse>> PostEdFiBulkJson(EdFiBulkJsonModel edFiBulkJson, CancellationToken cancellationToken)

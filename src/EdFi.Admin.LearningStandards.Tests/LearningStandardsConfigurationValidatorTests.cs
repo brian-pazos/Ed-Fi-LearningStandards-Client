@@ -54,9 +54,15 @@ namespace EdFi.Admin.LearningStandards.Tests
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(
                 _defaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
+
+            string apiInfoPath = new Uri(odsApiConfig.Url).Segments[^1].TrimEnd('/');
+
+
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("standards", ABConnectApiFileBasedTestCases.ValidApiResponse_LearningStandards())
-                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
+                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
             var clientConfiguration = new EdFiOdsApiClientConfiguration(0);
             var pluginConnector = GetConfiguredTestConnector(httpHandler, clientConfiguration);
             var validator = pluginConnector.LearningStandardsConfigurationValidator;
@@ -129,9 +135,13 @@ namespace EdFi.Admin.LearningStandards.Tests
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(
                 _defaultOdsUrl, EdFiOdsApiCompatibilityVersion.v3, authConfig);
+
+            string apiInfoPath = new Uri(odsApiConfig.Url).Segments[^1].TrimEnd('/');
+
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("validate/authentication", GetDefaultProxyResponse())
-                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
+                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
             var clientConfiguration = new EdFiOdsApiClientConfiguration(0);
             var pluginConnector = GetConfiguredTestConnector(httpHandler, clientConfiguration);
             var validator = pluginConnector.LearningStandardsConfigurationValidator;
@@ -178,9 +188,16 @@ namespace EdFi.Admin.LearningStandards.Tests
             IAuthenticationConfiguration authConfig = new AuthenticationConfiguration(_oAuthKey, _oAuthSecret);
             IEdFiOdsApiConfiguration odsApiConfig = new EdFiOdsApiConfiguration(
                 _defaultOdsUrl, EdFiOdsApiCompatibilityVersion.v2, authConfig);
+
+            string apiInfoPath = new Uri(odsApiConfig.Url).Segments[^1].TrimEnd('/');
+
             var httpHandler = new MockJsonHttpMessageHandler()
                 .AddRouteResponse("authorize", GetDefaultAuthorizationResponse())
-                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken));
+                .AddRouteResponse("token", GetDefaultAccessCodeResponse(_expectedAccessToken))
+                .AddRouteResponse($"{apiInfoPath}", JToken.Parse(TestCaseHelper.GetTestCaseTextFromFile("EdFiODSResponse/ODSv7x-Info-Response.json")));
+
+
+
             var clientConfiguration = new EdFiOdsApiClientConfiguration(0);
             var pluginConnector = GetConfiguredTestConnector(httpHandler, clientConfiguration);
             var validator = pluginConnector.LearningStandardsConfigurationValidator;
